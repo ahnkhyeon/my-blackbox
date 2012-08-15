@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp" >
+
+    <!-- Engine RPM -->
+    <TextView
+        android:id="@+id/textEngineRPM"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        
+        android:gravity="left"
+        android:textSize="17dp"
+        android:text="Engine RPM" />
+    <ProgressBar
+        android:id="@+id/gageEngineRPM"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp" />
+    <TextView
+        android:id="@+id/valueEngineRPM"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/gageEngineRPM"
+        android:layout_alignRight="@id/gageEngineRPM"
+        android:gravity="right"
+        android:textSize="18dp"
+        android:text="0" />
+    
+    <!-- Throttle Position -->
+    <TextView
+        android:id="@+id/textThrottlePos"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="80dp"
+        
+        android:gravity="left"
+        android:textSize="17dp"
+        android:text="Throttle Pos" />
+    <ProgressBar
+        android:id="@+id/gageThrottlePos"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="80dp" />
+    <TextView
+        android:id="@+id/valueThrottlePos"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/gageThrottlePos"
+        android:layout_alignRight="@id/gageThrottlePos"
+        android:gravity="right"
+        android:textSize="18dp"
+        android:text="0" />
+    
+    <!-- Engine Temp -->
+    <TextView
+        android:id="@+id/textEngineTemp"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="150dp"
+        
+        android:gravity="left"
+        android:textSize="17dp"
+        android:text="Engine Temp" />
+    <ProgressBar
+        android:id="@+id/gageEngineTemp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="150dp" />
+    <TextView
+        android:id="@+id/valueEngineTemp"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/gageEngineTemp"
+        android:layout_alignRight="@id/gageEngineTemp"
+        android:gravity="right"
+        android:textSize="18dp"
+        android:text="0" />
+    
+    <!-- Mass Air Flow -->
+    <TextView
+        android:id="@+id/textAirFlow"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="220dp"
+        
+        android:gravity="left"
+        android:textSize="17dp"
+        android:text="Air Flow" />
+    <ProgressBar
+        android:id="@+id/gageAirFlow"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="220dp" />
+    <TextView
+        android:id="@+id/valueAirFlow"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/gageAirFlow"
+        android:layout_alignRight="@id/gageAirFlow"
+        android:gravity="right"
+        android:textSize="18dp"
+        android:text="0" />
+    
+    <!-- Speed -->
+    <TextView
+        android:id="@+id/textSpeed"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="290dp"
+        
+        android:gravity="left"
+        android:textSize="17dp"
+        android:text="Speed" />
+    <ProgressBar
+        android:id="@+id/gageSpeed"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="290dp" />
+    <TextView
+        android:id="@+id/valueSpeed"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/gageSpeed"
+        android:layout_alignRight="@id/gageSpeed"
+        android:gravity="right"
+        android:textSize="18dp"
+        android:text="0" />
+    
+  
+
+</RelativeLayout>
