@@ -50,19 +50,19 @@
         <activity
             android:name=".setting.SettingAppInfo"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".setting.SettingBluetoothConnection"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".setting.SettingCameraResolutionesolution"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".setting.SettingWebLogin"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            android:theme="@android:style/Theme.Dialog" />
     </application>
 
 </manifest>
