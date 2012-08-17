@@ -2,6 +2,7 @@ package com.example.myblackbox.etc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,10 +11,31 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+
+
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 
 public class gsHttpConnect 
@@ -30,6 +52,7 @@ public class gsHttpConnect
 	
 	private String m_request ;
 
+	
 	
 	
 	/// 주소, 메소드타입("GET" or "POST"), map(변수명, 값) 을 넣어주면 됨
@@ -343,4 +366,6 @@ public class gsHttpConnect
 		return sb.toString( ) ;
 	}
 	
+	
+
 }
