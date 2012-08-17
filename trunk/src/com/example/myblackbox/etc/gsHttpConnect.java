@@ -8,80 +8,74 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpServerConnection;
-
 import android.util.Log;
-import android.widget.EditText;
 
 public class gsHttpConnect 
 {
 	
 	static private HttpURLConnection m_con ;
-	//private HttpResponse responer ;
 	
 	static private String m_cookies = "" ;
 	static boolean m_session = false ;
 	
 	
-	static long m_sessionLimitTime = 360000 ;  	/// ���� �ð����� (�и�������) ���� �����ð��̶� ���ߴ°� ������?
-	static long m_sessionTime = 0 ;    			/// ������ ���� �ð�
+	static long m_sessionLimitTime = 360000 ;  	/// 세션 시간제한 (밀리세컨드) 서버 설정시간이랑 맞추는게 좋을듯? 
+	static long m_sessionTime = 0 ;    			/// 세션을 얻은 시간 
 	
 	private String m_request ;
 
 	
 	
-	/// �ּ�, �޼ҵ�Ÿ��("GET" or "POST"), map(������, ��) �� �־��ָ� ��
+	/// 주소, 메소드타입("GET" or "POST"), map(변수명, 값) 을 넣어주면 됨
 	public String request( URL url, String method, Map<String, Object> params ) throws IOException 
 	{
-		/// ���� �ð��� �Ѿ���� �ʾҴ��� Ȯ���Ѵ�.
+		/// 세션 시간이 넘어가지는 않았는지 확인한다.
 		checkSession( ) ;
 		
-		/// �޾ƿ� ��ǲ��Ʈ��
-		/// POST����� ��� �����͸� ����� �ƿ�ǲ ��Ʈ��
+		/// 받아올 인풋스트림	 
+		/// POST방식일 경우 데이터를 전송할 아웃풋 스트림
 		
 		OutputStream out = null ;
 
-		/// url�� ����
+		/// url에 연결
 		m_con = (HttpURLConnection)url.openConnection( ) ;
 
-		/// �޼ҵ� Ÿ���� ���� "GET"�� "POST"�� �־�� �ϰ���~_~?
+		/// 메소드 타입을 지정 "GET"나 "POST"를 넣어야 하겠지~_~? 
 		m_con.setRequestMethod( method ) ;
 		
-		/// ���ڵ� ���� HTTP������� ����Ҷ��� urlencoded������� ���ڵ��ؼ� ����ؾ��Ѵ�.
+		/// 인코딩 정의 HTTP방식으로 전송할때는 urlencoded방식으로 인코딩해서 전송해야한다.
 		m_con.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded" ) ;
 
-		/// ��ǲ��Ʈ�� ���Ŷ�� ����
+		/// 인풋스트림 쓸거라고 지정
 		m_con.setDoInput( true ) ;
 		
-		m_con.setInstanceFollowRedirects( false ) ; // ������ ����Ϸ��� false�� �����ص־���
+		m_con.setInstanceFollowRedirects( false ) ; // 세션을 사용하려면 false로 설정해둬야함
 		
-		/// ���� ���صа� ������ ����� �����ؼ� ���� �� �����ߴ� �༮�̶�� �˷��ش�.
+		/// 세션 생성해둔게 있으면 헤더에 셋팅해서 내가 전에 접속했던 녀석이라고 알려준다.
 		if( m_session )
 		{
 			m_con.setRequestProperty( "cookie", m_cookies ) ;
 		}
 
 	
-		/// ����Ʈ����� ���
+		/// 포스트방식일 경우
 		if( method.equals( "POST" ) ) 
 		{
-			/// �����͸� �ּҿ� ������ ����Ѵ�.
-			m_con.setDoOutput( true ) ;						/// �ƿ�ǲ ��Ʈ�� �������� �ƿ�ǲ�� true�� ��
+			/// 데이터를 주소와 별개로 전송한다.
+			m_con.setDoOutput( true ) ;						/// 아웃풋 스트림 쓰기위에 아웃풋을 true로 켬
 			
-			String paramstr = buildParameters( params ) ;	/// �Ķ���͸� ���ڿ��� ġȯ
-			out = m_con.getOutputStream( ) ;				/// �ƿ�ǲ ��Ʈ�� ��
-			out.write(paramstr.getBytes( "UTF-8" ) ) ;		/// UTF-8�������� �����ؼ� ����.
-			out.flush( ) ;									/// �÷���~
-			out.close( ) ;									/// ��Ʈ�� �ݱ�
-			Log.d( "-- gsLog ---", "post succes" ) ;			/// �α����
+			String paramstr = buildParameters( params ) ;	/// 파라메터를 문자열로 치환
+			out = m_con.getOutputStream( ) ;				/// 아웃풋 스트림 생성
+			out.write(paramstr.getBytes( "UTF-8" ) ) ;		/// UTF-8포멧으로 변경해서 쓴다.
+			out.flush( ) ;									/// 플러쉬~
+			out.close( ) ;									/// 스트림 닫기 
+			Log.d( "-- gsLog ---", "post succes" ) ;		
 		}
 		
 		
@@ -92,26 +86,27 @@ public class gsHttpConnect
 		
 	}
 	
-	/// ��𼱰� �ۿ� �ҽ����� ¥���� ���� �Լ�
-	/// ������ ���ε��ϸ鼭 ���� ����ϰ� ����Ʈ �޴� �Լ��Խ���
-	public String uploadAndRequest( URL url, Map<String, Object> params, Map<String, Object> files ) throws IOException
+	/// 어디선가 퍼온 소스들을 짜맞춰 만든 함수
+	/// 파일을 업로드하면서 변수 전달하고 리퀘스트 받는 함수입습죠
+//	public String uploadAndRequest( URL url, Map<String, Object> params, Map<String, Object> files, String cookie ) throws IOException
+	public String uploadAndRequest( URL url, Map<String, Object> params, Map<String, Object> files) throws IOException
 	{
 		
-		/// ���� �ð��� �Ѿ���� �ʾҴ��� üũ
+		/// 세션 시간이 넘어가지는 않았는지 체크 
 		checkSession( ) ;
 		
 		
-		/// ���� ���ε�� ����� ��ǲ ��Ʈ��
+		/// 파일 업로드시 사용할 인풋 스트림
 		FileInputStream mFileInputStream = null;
 	    
 		
-		/// ���� �����Ҷ� �� ���ڿ���
+		/// 변수 조립할때 쓸 문자열들 
 	    final String lineEnd = "\r\n" ;
 	    final String twoHyphens = "--" ;
 	    final String boundary = "*****" ;   
 
 	    
-	    /// �����ϰ� ȯ�� ����
+	    /// 연결하고 환경 셋팅
         m_con = (HttpURLConnection)url.openConnection( ) ;            
         m_con.setDoInput( true ) ;
         m_con.setDoOutput( true ) ;
@@ -119,11 +114,11 @@ public class gsHttpConnect
         m_con.setRequestMethod( "POST" ) ;
         m_con.setInstanceFollowRedirects( false ) ;
 		
-		/// ���� ���صа� ������ ����� �����ؼ� ���� �� �����ߴ� �༮�̶�� �˷��ش�.
-		if( m_session )
-		{
-			m_con.setRequestProperty( "cookie", m_cookies ) ;
-		}
+		///세션 생성해둔게 있으면 헤더에 셋팅해서 내가 전에 접속했던 녀석이라고 알려준다.
+//		if( !cookie.isEmpty() )
+//		{
+//			m_con.setRequestProperty( "cookie", cookie ) ;
+//		}
         
 		m_con.setRequestProperty("Connection", "Keep-Alive");
 		m_con.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
@@ -131,24 +126,24 @@ public class gsHttpConnect
         
         
         ///////////////////////////////////////////////////////////////////////
-        /// ���� ���
+        /// 변수 전달
 		///////////////////////////////////////////////////////////////////////
         DataOutputStream dos = new DataOutputStream( m_con.getOutputStream( ) ) ;
         
-        /// Ű�� ���� �������� ������
+        ///키와 값을 차례차례 빼낸다
 		for ( Iterator<String> i = params.keySet( ).iterator( ) ; i.hasNext( ) ; ) 
 		{
-			String key = ( String )i.next( ) ;
+			String key = i.next( ) ;
 
-			/// ���� ���غ��� ���� ���� �ʴ°�?
+			/// 대충 생각해보면 감이 올지 않는가?
 			/// --*****\r\n
-			/// Content-Disposition: form-data; name=\"������1\"\r\n������1\r\n
+			/// Content-Disposition: form-data; name=\"변수명1\"\r\n변수값1\r\n
 			/// --*****\r\n
-			/// Content-Disposition: form-data; name=\"������2\"\r\n������2\r\n
+			/// Content-Disposition: form-data; name=\"변수명2\"\r\n변수값2\r\n
 			/// --*****\r\n
-			/// Content-Disposition: form-data; name=\"������3\"\r\n������3\r\n
+			/// Content-Disposition: form-data; name=\"변수명3\"\r\n변수값3\r\n
 			
-			dos.writeBytes( twoHyphens + boundary + lineEnd ) ; //�ʵ� ������ ����
+			dos.writeBytes( twoHyphens + boundary + lineEnd ) ; //필드 구분자 시작
 			dos.writeBytes( "Content-Disposition: form-data; name=\"" 
 					+ key 
             		+ "\""+ lineEnd ) ;
@@ -165,19 +160,19 @@ public class gsHttpConnect
         
         
 		///////////////////////////////////////////////////////////////////////
-        /// ���� ���
+        /// 파일 전달
 		///////////////////////////////////////////////////////////////////////
 		
-		/// Ű�� ���� �������� ������
+		/// 키와 값을 차례차례 빼낸다
 		for ( Iterator<String> i = files.keySet( ).iterator( ) ; i.hasNext( ) ; ) 
 		{
-			String key = ( String )i.next( ) ;
+			String key = i.next( ) ;
 			String fileName = String.valueOf( files.get( key ) ) ;
 			
 			mFileInputStream = new FileInputStream( fileName );            
 
 
-			/// ������ ������ ���뿡�� ������ ��� ������ ���� �͸� �ٸ��ϱ� ���̻��� ������ ���Ѵ�.
+			/// 위에서 설명한 내용에서 변수값 대신 파일을 쓰는 것만 다르니까 더이상의 설명은 생략한다.
 			dos.writeBytes( twoHyphens + boundary + lineEnd ) ;
 			dos.writeBytes( "Content-Disposition: form-data; name=\"" 
 					+ key
@@ -191,7 +186,7 @@ public class gsHttpConnect
 	        byte[] buffer = new byte[bufferSize] ;
 	        int bytesRead = mFileInputStream.read( buffer, 0, bufferSize ) ;
 
-	        /// �׸����� �о ������ ���ش�.
+	        /// 그림파일 읽어서 내용을 쏴준다.
 	        while( bytesRead > 0 ) 
 	        {
 	            dos.write( buffer, 0, bufferSize ) ;
@@ -202,7 +197,7 @@ public class gsHttpConnect
         
 	        dos.writeBytes( lineEnd ) ;
 	        dos.writeBytes( twoHyphens + boundary + twoHyphens + lineEnd ) ;
-	        /// ���� �ϳ�(�����ϳ�) ��� ��
+	        /// 변수 하나(파일하나) 전달 끗 
         
 	        mFileInputStream.close( ) ;
 	        
@@ -221,116 +216,68 @@ public class gsHttpConnect
 	{
 		InputStream in = null ;
 		
-		/// �޾ƿ� �����͸� �������� ��Ʈ��
+		/// 받아온 데이터를 쓰기위한 스트림
 		ByteArrayOutputStream bos = new ByteArrayOutputStream( ) ;
 		
-		/// ����Ʈ �����͸� ������ ����
+		/// 리퀘스트 데이터를 저장할 버퍼
 		byte[] buf = new byte[2048];
-		try 
+		
+		int k = 0 ; /// 읽은 라인수
+		
+		long ti = System.currentTimeMillis( ) ;	/// == 시간 체크용 == 서버에 따라 리퀘스트 오는 시간이 매우 오래걸림
+		
+		in = m_con.getInputStream( ) ;     		/// 인풋스트림 생성
+		
+		/// == 시간 체크용 == inputstream얻는 요기서 시간 10초이상 넘어가면 큰일남 		           
+		/// 갤럭시 S에서 어떤앱은 WebView라던가 Http통신에서 15초인가 넘어가면 세션 끊기는 		           
+		/// 원인을 알 수 없는 경우도 있었음 다른기기 다 잘되는데 오로지 갤럭시 S만!!! 그랬음 참고 바람요 
+		Log.d( "---recTime---", "" + ( System.currentTimeMillis( ) - ti ) ) ;
+		
+		
+		/// 루프를 돌면서 리퀘스트로 받은내용을 저장한다.
+		while( true )
 		{
-			int k = 0 ; /// ���� ���μ�
-			
-			long ti = System.currentTimeMillis( ) ;	/// == �ð� üũ�� == ������ ��� ����Ʈ ���� �ð��� �ſ� �����ɸ�
-			
-			in = m_con.getInputStream( ) ;     		/// ��ǲ��Ʈ�� ��
-			
-			/// == �ð� üũ�� == inputstream��� ��⼭ �ð� 10���̻� �Ѿ�� ū�ϳ�
-            /// ������ S���� ����� WebView��� Http��ſ��� 15���ΰ� �Ѿ�� ���� �����
-            /// ������ �� �� ��� ��쵵 �־��� �ٸ���� �� �ߵǴµ� ������ ������ S��!!! �׷��� ��� �ٶ���
-			Log.d( "---recTime---", "" + ( System.currentTimeMillis( ) - ti ) ) ;
-
-
-			/// ������ ���鼭 ����Ʈ�� ���������� �����Ѵ�.
-			while( true )
-			{
-				int readlen = in.read( buf ) ;
-				if( readlen < 1 )
-					break ;
-				k += readlen ;
-				bos.write( buf, 0, readlen ) ;
-			}
-			/// ����Ʈ ���� ������ UTF-8�� �����ؼ� ���ڿ��� ����
-			m_request = new String( bos.toByteArray( ), "UTF-8" ) ;
-			/*
-			File fl = new File( "/sdcard/rec.txt" ) ;
-			FileOutputStream fos = new FileOutputStream( fl ) ;
-			fos.write( bos.toByteArray( ) ) ;
-			/**/
-			
-			m_session = requestAndSetSession( ) ;
-			
-			return m_request ;
-			
-		}
-		catch (IOException e) 
-		{
-			/// ����Ʈ �޴ٰ� ������ ���� �������鼭 ���� �޼����� �д´�.
-			if ( m_con.getResponseCode( ) == 500 ) 
-			{
-				/// ���� �����ϰ� ������ ���� ��ǲ��Ʈ�� ���ؼ� ����޼��� ���
-				bos.reset( ) ;
-			    InputStream err = m_con.getErrorStream( ) ;
-			    while( true ) 
-			    {
-			    	int readlen = err.read( buf ) ;
-			    	
-			    	if ( readlen < 1 )
-			    		break ;
-			    	bos.write( buf, 0, readlen ) ;
-			    }
-			    
-			    /// �����޼����� ���ڿ��� ����
-			    String output = new String( bos.toByteArray( ), "UTF-8" ) ;
-			    
-			    /// ���� �����޼����� ����Ѵ�.
-			   	System.err.println( output ) ;
-			}
-			
-			m_request = "error" ;
-			
-			throw e ;
-			
-		} 
-		finally /// 500������ �ƴϸ� �׳� ���� �������.... -_- �ȵǴµ� ���ֳ�?
-		{
-			if ( in != null )
-				in.close( ) ;
-			
-			if ( m_con != null )
-				m_con.disconnect( ) ;
-			
-			m_session = false ;
-			m_cookies = "" ;
-			
-			m_request = "error" ;
-
+			int readlen = in.read( buf ) ;
+			if( readlen < 1 )
+				break ;
+			k += readlen ;
+			bos.write( buf, 0, readlen ) ;
 		}
 			
-		//return m_request ;
+		/// 리퀘스트 받은 내용을 UTF-8로 변경해서 문자열로 저장
+		m_request = new String( bos.toByteArray( ), "UTF-8" ) ;
+
+		Log.i("GET_XML_OK", m_request);
+		m_session = requestAndSetSession( ) ;
+			
+		in.close( ) ;
+		m_con.disconnect( ) ;
+		
+		return m_request ;
 	}
 	
 	
-	/// Request�� �޵� ���� ������ ���� ��Ű�� �����Ѵ�.
+	/// Request를 받되 세션 유지를 위해 쿠키를 저장한다.
 	 public boolean requestAndSetSession( )
 	 {
 	  
-		 /// �ʿ��� Http����� �޾Ƴ�
+		 ///맵에다 Http헤더를 받아냄
 	     Map< String, List<String> > imap = m_con.getHeaderFields( ) ;
 	     
-	     /// �׸��� �ű� ������ ��Ű�� ã�Ƴ�
+	     /// 그리고 거길 뒤져서 쿠키를 찾아냄
 	     if( imap.containsKey( "Set-Cookie" ) )
 	     {
-	    	 /// ��Ű�� ��Ʈ������ �� ������
+	    	 /// 쿠키를 스트링으로 쫙 저장함
 	    	 List<String> lString = imap.get( "Set-Cookie" ) ;
 	    	 for( int i = 0 ; i < lString.size() ; i++ )
 	    	 {
 	    		 m_cookies += lString.get( i ) ;
 	    	 }
-	    	 // 2.3���� �����۵����� �ʽ��ϴ� .���� �ڵ�� ��ó�մϴ�.
-	    	 //Collections c = (Collections)imap.get( "Set-Cookie" ) ;
+	    	// 2.3에서 정상작동하지 않습니다 .위의 코드로 대처합니다.
+	    	//Collections c = (Collections)imap.get( "Set-Cookie" ) ; 
 	    	 //m_cookies = c.toString( ) ;
 	      
-	    	 /// ������ ���������� 
+	    	 ///  세션을 저장했으니
 	         return true ;
 	     }
 	     else
@@ -350,50 +297,49 @@ public class gsHttpConnect
 		
 		if( System.currentTimeMillis( ) < m_sessionTime + m_sessionLimitTime )
 		{
-			/// ���ѽð� ���� �ȳѾ��� ���� ���� �����Ŵ
+			/// 제한시간 아직 안넘었음 세션 유지 연장시킴 
 			m_sessionTime = System.currentTimeMillis( ) ;
 			return true ; 
 		}
 		else
 		{
-			/// ���ѽð��� �Ѱ��� ������ ������
+			/// 제한시간을 넘겼음 세션을 제거함 
 			m_cookies = "" ;
 			m_session = false ;
 			return false ; 
 		}
 	}
 	
-	/// �Ķ���� ����  "������=������&" ����� �ؽ�Ʈ�� ��ȯ���ִ� �Լ�
+	/// 파라메터 값을  "변수명=변수값&" 형식의 텍스트로 변환해주는 함수 
 	protected String buildParameters(Map<String, Object> params) throws IOException 
 	{
 		StringBuilder sb = new StringBuilder( ) ;
 		
-		/// �Ķ���Ͱ� ������ �׳� ��~ �Ѵ�
+		/// 파라메터가 없으면 그냥 쌩~ 한다 
 		if( params == null )
 		{
 			return "" ;
 		}
 		
-		/// Ű�� ���� �������� ������
+		/// 키와 값을 차례차례 빼낸다 
 		for ( Iterator<String> i = params.keySet( ).iterator( ) ; i.hasNext( ) ; ) 
 		{
 			
-			/// �Լ� �����δ� ������ �� �ʿ��ϳ�.
-			/// ������=������&������=������&������=������ �̷� ������ String�� ����� ���� �۾��̴� 
+			/// 변수명=변수값&변수명=변수값&변수명=변수값 이런 형태의 String를 만들기 위한 작업이다  
 			
-			String key = ( String )i.next( ) ;
+			String key = i.next( ) ;
 			sb.append( key ) ;
 			sb.append( "=" ) ;
 			sb.append( URLEncoder.encode( String.valueOf( params.get( key ) ), "UTF-8" ) ) ;
 			
-			/// ���� �� ������ &�� �־��ش�.
+			/// 값이 더 있으면 &를 넣어준다.
 			if ( i.hasNext( ) )
 			{
 				sb.append( "&" ) ;
 			}
 		}
 		
-		/// ���� ���ڿ��� ��ȯ�Ѵ�.
+		///만들어낸 문자열을 반환한다.
 		return sb.toString( ) ;
 	}
 	

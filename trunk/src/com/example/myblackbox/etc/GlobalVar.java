@@ -63,6 +63,12 @@ public class GlobalVar extends Application {
 	public static final int CURRENT_OBD_VIEW = 3;
 	public static final int CURRENT_SETTING_VIEW = 4;
 	
+	// Video Storage
+	public static final String VIDEO_PATH = "/sdcard/MyBlackBox";
+	
+	// Web Address
+	public static final String WEB_URL = "http://192.168.0.13/MyCarServer/";
+	
 	
 	
 	

@@ -1,5 +1,7 @@
 package com.example.myblackbox;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -58,6 +60,12 @@ public class MyBlackBox extends Activity {
 					GlobalVar.REQUEST_ENABLE_BT);
 		} else {
 			connectBluetooth(true);
+		}
+		
+		// Video Storage
+		File thePath = new File(GlobalVar.VIDEO_PATH);
+		if(!thePath.isDirectory()) {
+			thePath.mkdirs();
 		}
 
 	}
@@ -156,9 +164,8 @@ public class MyBlackBox extends Activity {
 
 				String[] theSplit = readMessage.split("/");
 
-				if (GlobalVar.isDebug)
-
-					Log.e(GlobalVar.TAG, "Recv : " + readMessage);
+//				if (GlobalVar.isDebug)
+//					Log.e(GlobalVar.TAG, "Recv : " + readMessage);
 
 				switch (theGlobalVar.getCurrentView()) {
 				case GlobalVar.CURRENT_OBD_VIEW:
