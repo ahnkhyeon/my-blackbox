@@ -28,7 +28,7 @@ public class SettingView extends PreferenceActivity {
 	private Preference theBluetoothDisconnection;
 	private Preference theWebLogin;
 	private Preference theWebLogout;
-	
+
 	/** Global Variable */
 	private GlobalVar theGlobalVar;
 
@@ -37,12 +37,11 @@ public class SettingView extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		
+
 		// Global Variable Setting
-		if(theGlobalVar == null) {
+		if (theGlobalVar == null) {
 			theGlobalVar = (GlobalVar) getApplicationContext();
 		}
-	
 
 		addPreferencesFromResource(R.layout.setting_view);
 
@@ -64,10 +63,10 @@ public class SettingView extends PreferenceActivity {
 
 		SharedPreferences thePrefs = getSharedPreferences("settingValues",
 				MODE_PRIVATE);
-		String theBlueName = thePrefs.getString("BlueName", "");
-		String theBlueAddress = thePrefs.getString("BlueAddress", "");
-		String theWebId = thePrefs.getString("LoginID", "");
-		String theWebIdentity = thePrefs.getString("LoginIdentity", "");
+		String theBlueName = thePrefs.getString(GlobalVar.SHARED_BLUE_NAME, "");
+		String theBlueAddress = thePrefs.getString(GlobalVar.SHARED_BLUE_ADDRESS, "");
+		String theWebId = thePrefs.getString(GlobalVar.SHARED_LOGIN_ID, "");
+		String theWebIdentity = thePrefs.getString(GlobalVar.SHARED_LOGIN_IDENTITY, "");
 
 		if (theBlueName.length() == 0 && theBlueAddress.length() == 0) {
 			theBluetoothConnection.setTitle("Bluetooth 연결");
@@ -145,8 +144,8 @@ public class SettingView extends PreferenceActivity {
 												"settingValues", MODE_PRIVATE);
 										SharedPreferences.Editor thePrefEdit = thePrefs
 												.edit();
-										thePrefEdit.remove("BlueName");
-										thePrefEdit.remove("BlueAddress");
+										thePrefEdit.remove(GlobalVar.SHARED_BLUE_NAME);
+										thePrefEdit.remove(GlobalVar.SHARED_BLUE_ADDRESS);
 										thePrefEdit.commit();
 
 										theBluetoothConnection
@@ -154,9 +153,11 @@ public class SettingView extends PreferenceActivity {
 										theBluetoothConnection.setSummary("");
 										theBluetoothDisconnection
 												.setEnabled(false);
-										
-										Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(GlobalVar.BLUE_DISCONNECT);
-										theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
+
+										Message theMsg = theGlobalVar.theBlueCommandHandler
+												.obtainMessage(GlobalVar.BLUE_DISCONNECT);
+										theGlobalVar.theBlueCommandHandler
+												.sendMessage(theMsg);
 
 									}
 								})
@@ -165,7 +166,7 @@ public class SettingView extends PreferenceActivity {
 									public void onClick(DialogInterface dialog,
 											int which) {
 										// 'No'
-										
+
 										return;
 									}
 								});
@@ -194,8 +195,8 @@ public class SettingView extends PreferenceActivity {
 												"settingValues", MODE_PRIVATE);
 										SharedPreferences.Editor thePrefEdit = thePrefs
 												.edit();
-										thePrefEdit.remove("LoginID");
-										thePrefEdit.remove("LoginIdentity");
+										thePrefEdit.remove(GlobalVar.SHARED_LOGIN_ID);
+										thePrefEdit.remove(GlobalVar.SHARED_LOGIN_IDENTITY);
 										thePrefEdit.commit();
 
 										theWebLogin.setTitle("Web 로그인");
@@ -232,17 +233,17 @@ public class SettingView extends PreferenceActivity {
 				SharedPreferences thePrefs = getSharedPreferences(
 						"settingValues", MODE_PRIVATE);
 				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString("BlueName", theName);
-				thePrefEdit.putString("BlueAddress", theAddress);
+				thePrefEdit.putString(GlobalVar.SHARED_BLUE_NAME, theName);
+				thePrefEdit.putString(GlobalVar.SHARED_BLUE_ADDRESS, theAddress);
 				thePrefEdit.commit();
 
 				theBluetoothConnection.setTitle("Bluetooth 다른 기기 연결");
 				theBluetoothConnection.setSummary("" + theName + "("
 						+ theAddress + ")");
 				theBluetoothDisconnection.setEnabled(true);
-				
-				
-				Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(GlobalVar.BLUE_CONNECT);
+
+				Message theMsg = theGlobalVar.theBlueCommandHandler
+						.obtainMessage(GlobalVar.BLUE_CONNECT);
 				theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
 
 			} else {
@@ -273,19 +274,20 @@ public class SettingView extends PreferenceActivity {
 				SharedPreferences thePrefs = getSharedPreferences(
 						"settingValues", MODE_PRIVATE);
 				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString("LoginID", theInfos[0]);
-				thePrefEdit.putString("LoginIdentity", theInfos[1]);
+				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_ID, theInfos[0]);
+				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_IDENTITY, theInfos[1]);
 				thePrefEdit.commit();
 
 				theWebLogin.setTitle("Web 다른 아이디 로그인");
 				theWebLogin.setSummary(theInfos[0]);
-				theWebLogout.setEnabled(false);
+				theWebLogout.setEnabled(true);
 
 			}
 			break;
 		}
 
 	}
+
 	/** Custom Hardware Button */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -294,11 +296,7 @@ public class SettingView extends PreferenceActivity {
 		case KeyEvent.KEYCODE_BACK:
 			if (GlobalVar.isDebug)
 				Log.e(GlobalVar.TAG, "KeyCode Back");
-			
-			
-			
-	
-			
+
 			finish();
 
 			return false;

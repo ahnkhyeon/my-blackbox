@@ -96,7 +96,7 @@ public class MyBlackBox extends Activity {
 	}
 
 	private void connectBluetooth(boolean isStart) {
-		String theBlueAddress = theGlobalVar.getSharedPref("BlueAddress");
+		String theBlueAddress = theGlobalVar.getSharedPref(GlobalVar.SHARED_BLUE_ADDRESS);
 
 		if (theBlueAddress.length() != 0) {
 			if (theBluetoothService == null) {
