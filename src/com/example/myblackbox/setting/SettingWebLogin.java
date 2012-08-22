@@ -16,7 +16,6 @@ import com.example.myblackbox.R;
 import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.gsHttpConnect;
 
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -31,7 +30,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class SettingWebLogin extends Activity {
-	
+
 	EditText theLoginID;
 	EditText theLoginPW;
 
@@ -39,7 +38,7 @@ public class SettingWebLogin extends Activity {
 	Button theLogin;
 
 	String theUserID;
-	String theUserPass;
+	String theUserIdentity;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -47,73 +46,94 @@ public class SettingWebLogin extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.setting_web_login);
-	    // TODO Auto-generated method stub
-	    
+		// TODO Auto-generated method stub
+
 		setResult(Activity.RESULT_CANCELED);
 
-	    theLoginID = (EditText) findViewById(R.id.loginID);
-	    theLoginPW = (EditText) findViewById(R.id.loginPW);
-	    
-	    theCancel = (Button) findViewById(R.id.loginCancel);
-	    theCancel.setOnClickListener(new OnClickListener() {
-			
+		theLoginID = (EditText) findViewById(R.id.loginID);
+		theLoginPW = (EditText) findViewById(R.id.loginPW);
+
+		theCancel = (Button) findViewById(R.id.loginCancel);
+		theCancel.setOnClickListener(new OnClickListener() {
+
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				setResult(Activity.RESULT_CANCELED);
-				
+
 			}
 		});
-	    
-	    theLogin = (Button) findViewById(R.id.loginBtn);
-	    theLogin.setOnClickListener(new OnClickListener() {
-			
+
+		theLogin = (Button) findViewById(R.id.loginBtn);
+		theLogin.setOnClickListener(new OnClickListener() {
+
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				
-				if (theLoginID.getText().length()==0) {
+
+				if (theLoginID.getText().length() == 0) {
 					GlobalVar.popupToast(SettingWebLogin.this, "아이디를 입력해 주세요.");
 				} else if (theLoginPW.getText().length() == 0) {
-					GlobalVar.popupToast(SettingWebLogin.this, "패스워드를 입력해 주세요.");
+					GlobalVar
+							.popupToast(SettingWebLogin.this, "패스워드를 입력해 주세요.");
 				} else {
-					showDialog(GlobalVar.DIALOG_PROGRESS_ID);
-				} 
-				
+					Log.e(GlobalVar.TAG,"ID : "+theLoginID.getText() + " / Pass : "+theLoginPW.getText());
+					
+					 showDialog(GlobalVar.DIALOG_PROGRESS_ID);
+					 
+					
+
+//					gsHttpConnect com = new gsHttpConnect();
+//
+//					Map<String, Object> params = new HashMap<String, Object>();
+//
+//					params.put("user_id", theLoginID.getText());
+//					params.put("user_pw", theLoginPW.getText());
+//
+//					try {
+//						String theResult = com.request(new URL(GlobalVar.theURL
+//								+ "loginForMobile.php"), "POST", params);
+//						Log.e(GlobalVar.TAG, theResult);
+//					} catch (MalformedURLException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+
+				}
+
 			}
 		});
 	}
+
 	final Handler handler = new Handler() {
 		public void handleMessage(Message theMsg) {
-			
+
 			switch (theMsg.what) {
 			case GlobalVar.LOGIN_FLAG_OK:
 				GlobalVar.popupToast(SettingWebLogin.this, (String) theMsg.obj);
-				
-				
-				
+
 				dismissDialog(GlobalVar.DIALOG_PROGRESS_ID);
 				removeDialog(GlobalVar.DIALOG_PROGRESS_ID);
-				
+
 				Intent intent = new Intent();
-				intent.putExtra(GlobalVar.LOGIN, (String)theMsg.obj);
+				intent.putExtra(GlobalVar.LOGIN, (String) theMsg.obj);
 				setResult(Activity.RESULT_OK, intent);
 				finish();
-								
-				
+
 				break;
 			case GlobalVar.LOGIN_FLAG_ERROR:
 				GlobalVar.popupToast(SettingWebLogin.this, (String) theMsg.obj);
-				
+
 				dismissDialog(GlobalVar.DIALOG_PROGRESS_ID);
 				removeDialog(GlobalVar.DIALOG_PROGRESS_ID);
 
 				break;
 			}
-			
-		
+
 		}
 	};
 
-	
 	private class ProgressThread extends Thread {
 		Handler mHandler;
 
@@ -123,8 +143,7 @@ public class SettingWebLogin extends Activity {
 		}
 
 		public void run() {
-			
-			
+
 			gsHttpConnect com = new gsHttpConnect();
 
 			Map<String, Object> params = new HashMap<String, Object>();
@@ -133,8 +152,8 @@ public class SettingWebLogin extends Activity {
 			params.put("user_pw", theLoginPW.getText());
 
 			try {
-				String theResult = com.request(new URL(GlobalVar.theURL+"loginMobile.php"), "POST",
-						params);
+				String theResult = com.request(new URL(GlobalVar.theURL
+						+ "loginForMobile.php"), "POST", params);
 				Log.e(GlobalVar.TAG, theResult);
 
 				XmlPullParserFactory parserCreator = XmlPullParserFactory
@@ -147,12 +166,10 @@ public class SettingWebLogin extends Activity {
 
 				int parserEvent = theParser.getEventType();
 
-
 				String theXmlTag = "";
 				String ErrorMsg = "";
 				theUserID = "";
-				theUserPass = "";
-				
+				theUserIdentity = "";
 
 				while (parserEvent != XmlPullParser.END_DOCUMENT) {
 					switch (parserEvent) {
@@ -160,10 +177,10 @@ public class SettingWebLogin extends Activity {
 
 						if (theXmlTag.equals("error")) {
 							ErrorMsg = theParser.getText();
-						} else if (theXmlTag.equals("id")) {
+						} else if (theXmlTag.equals("user")) {
 							theUserID = theParser.getText();
 						} else if (theXmlTag.equals("identity")) {
-							theUserPass = theParser.getText();
+							theUserIdentity = theParser.getText();
 						}
 						break;
 					case XmlPullParser.END_TAG:
@@ -176,13 +193,14 @@ public class SettingWebLogin extends Activity {
 					}
 					parserEvent = theParser.next();
 				}
-				
-				
+
 				Message theMsg;
-				if (theUserID.length() != 0 & theUserPass.length() != 0) {
-					theMsg = mHandler.obtainMessage(GlobalVar.LOGIN_FLAG_OK, theUserID+"/"+theUserPass);
+				if (theUserID.length() != 0 & theUserIdentity.length() != 0) {
+					theMsg = mHandler.obtainMessage(GlobalVar.LOGIN_FLAG_OK,
+							theUserID + "/" + theUserIdentity);
 				} else {
-					theMsg = mHandler.obtainMessage(GlobalVar.LOGIN_FLAG_ERROR,ErrorMsg);
+					theMsg = mHandler.obtainMessage(GlobalVar.LOGIN_FLAG_ERROR,
+							ErrorMsg);
 				}
 				mHandler.sendMessage(theMsg);
 			} catch (MalformedURLException e) {
@@ -197,12 +215,12 @@ public class SettingWebLogin extends Activity {
 			}
 		}
 	}
-	
-	
+
 	protected Dialog onCreateDialog(int id) {
-		switch(id) {
+		switch (id) {
 		case GlobalVar.DIALOG_PROGRESS_ID:
-			ProgressDialog progressDialog = new ProgressDialog(SettingWebLogin.this);
+			ProgressDialog progressDialog = new ProgressDialog(
+					SettingWebLogin.this);
 			progressDialog.setMessage("로그인 중입니다.");
 			new ProgressThread(handler).start();
 			return progressDialog;
