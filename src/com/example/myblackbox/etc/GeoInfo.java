@@ -3,7 +3,7 @@ package com.example.myblackbox.etc;
 public class GeoInfo {
 	private double theLatitude;
 	private double theLongitude;
-	private String theDate;
+	private String theDate; 
 
 	public GeoInfo(double latitude, double longitude, String date) {
 		// TODO Auto-generated constructor stub
