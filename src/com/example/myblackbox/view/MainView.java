@@ -57,7 +57,7 @@ public class MainView extends Activity {
 			switch (theView.getId()) {
 			case R.id.view_camera:
 				setCurrentView(GlobalVar.CURRENT_CAMERA_VIEW);
-				Intent theCameraViewIntent = new Intent(MainView.this, CameraView.class);
+				Intent theCameraViewIntent = new Intent(MainView.this, Camera.class);
 				startActivityForResult(theCameraViewIntent, GlobalVar.CURRENT_CAMERA_VIEW);
 
 				break;
