@@ -1,5 +1,8 @@
 package com.example.myblackbox.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.myblackbox.R;
 import com.example.myblackbox.setting.*;
 
@@ -9,6 +12,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Camera;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,6 +29,8 @@ public class SettingView extends PreferenceActivity {
 
 	private Preference theAppInfo;
 	private Preference theCameraResolution;
+	private Preference theCameraStorage;
+	private Preference theCameraRecordTime;
 	private Preference theBluetoothConnection;
 	private Preference theBluetoothDisconnection;
 	private Preference theWebLogin;
@@ -46,27 +53,48 @@ public class SettingView extends PreferenceActivity {
 		addPreferencesFromResource(R.layout.setting_view);
 
 		theAppInfo = findPreference("setting_app_info");
+
 		theCameraResolution = findPreference("settting_camera_resolution");
+		theCameraStorage = findPreference("settting_camera_storage");
+		theCameraRecordTime = findPreference("settting_camera_record_time");
+
 		theBluetoothConnection = findPreference("settting_bluetooth_connection");
 		theBluetoothDisconnection = findPreference("settting_bluetooth_disconnection");
+
 		theWebLogin = findPreference("settting_web_login");
 		theWebLogout = findPreference("settting_web_logout");
 
 		theAppInfo.setOnPreferenceClickListener(thePreferenceListener);
+
 		theCameraResolution.setOnPreferenceClickListener(thePreferenceListener);
+		theCameraStorage.setOnPreferenceClickListener(thePreferenceListener);
+		theCameraRecordTime.setOnPreferenceClickListener(thePreferenceListener);
+
 		theBluetoothConnection
 				.setOnPreferenceClickListener(thePreferenceListener);
 		theBluetoothDisconnection
 				.setOnPreferenceClickListener(thePreferenceListener);
+
 		theWebLogin.setOnPreferenceClickListener(thePreferenceListener);
 		theWebLogout.setOnPreferenceClickListener(thePreferenceListener);
 
 		SharedPreferences thePrefs = getSharedPreferences("settingValues",
 				MODE_PRIVATE);
 		String theBlueName = thePrefs.getString(GlobalVar.SHARED_BLUE_NAME, "");
-		String theBlueAddress = thePrefs.getString(GlobalVar.SHARED_BLUE_ADDRESS, "");
+		String theBlueAddress = thePrefs.getString(
+				GlobalVar.SHARED_BLUE_ADDRESS, "");
 		String theWebId = thePrefs.getString(GlobalVar.SHARED_LOGIN_ID, "");
-		String theWebIdentity = thePrefs.getString(GlobalVar.SHARED_LOGIN_IDENTITY, "");
+		String theWebIdentity = thePrefs.getString(
+				GlobalVar.SHARED_LOGIN_IDENTITY, "");
+
+		String theResolWidth = thePrefs.getString(
+				GlobalVar.SHARED_CAMERA_WIDTH, "");
+		String theResolHeight = thePrefs.getString(
+				GlobalVar.SHARED_CAMERA_HEIGHT, "");
+		String theRecordTime = thePrefs.getString(
+				GlobalVar.SHARED_CAMERA_RECORD_TIME, "");
+		String theStorageSize = thePrefs.getString(
+				GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "");
 
 		if (theBlueName.length() == 0 && theBlueAddress.length() == 0) {
 			theBluetoothConnection.setTitle("Bluetooth 연결");
@@ -90,6 +118,50 @@ public class SettingView extends PreferenceActivity {
 			theWebLogout.setEnabled(true);
 		}
 
+		if (theResolWidth.length() == 0 || theResolHeight.length() == 0) {
+			Camera mCamera = Camera.open();
+			Camera.Parameters params = mCamera.getParameters();
+			List<Size> tempParms = params.getSupportedPreviewSizes();
+			
+			String width = ""+tempParms.get(0).width;
+			String height = ""+tempParms.get(0).height;
+
+			mCamera.release();
+			mCamera = null;
+			
+			
+			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
+			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_WIDTH, width);
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_HEIGHT, height);
+			thePrefEdit.commit();
+			
+			theCameraResolution.setSummary(width+" * "+height);
+		} else {
+			theCameraResolution.setSummary(theResolWidth+" * "+theResolHeight);
+		}
+
+		if (theRecordTime.length() == 0) {
+			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
+			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_RECORD_TIME, "1분");
+			thePrefEdit.commit();
+			
+			theCameraRecordTime.setSummary("1분");
+		} else {
+			theCameraRecordTime.setSummary(theRecordTime);
+		}
+
+		if (theStorageSize.length() == 0) {
+			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
+			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "1 GB");
+			thePrefEdit.commit();
+			
+			theCameraStorage.setSummary("1GB");
+		} else {
+			theCameraStorage.setSummary(theStorageSize);
+		}
 	}
 
 	OnPreferenceClickListener thePreferenceListener = new OnPreferenceClickListener() {
@@ -103,8 +175,26 @@ public class SettingView extends PreferenceActivity {
 				Log.e(GlobalVar.TAG, "app info");
 			} else if (preference.getKey().equals("settting_camera_resolution")) {
 				/** 카메라 해상도 */
-				GlobalVar.popupToast(SettingView.this,
-						"settting_camera_resolution");
+				Log.e(GlobalVar.TAG, "Camera Resolution");
+				Intent ResolutionIntent = new Intent(SettingView.this,
+						SettingCameraResolution.class);
+				startActivityForResult(ResolutionIntent,
+						GlobalVar.REQUEST_CAMERA_RESOLUTION);
+			} else if (preference.getKey().equals("settting_camera_storage")) {
+				/** 동영상 저장 총 용량 */
+
+				Intent StorageIntent = new Intent(SettingView.this,
+						SettingCameraStorage.class);
+				startActivityForResult(StorageIntent,
+						GlobalVar.REQUEST_CAMERA_STORAGE);
+			} else if (preference.getKey()
+					.equals("settting_camera_record_time")) {
+				/** 카메라 저장 시간 */
+
+				Intent RecordTimeIntent = new Intent(SettingView.this,
+						SettingCameraRecordTime.class);
+				startActivityForResult(RecordTimeIntent,
+						GlobalVar.REQUEST_CAMERA_RECORD_TIME);
 			} else if (preference.getKey().equals(
 					"settting_bluetooth_connection")) {
 				/** 블루투스 연결 */
@@ -144,8 +234,10 @@ public class SettingView extends PreferenceActivity {
 												"settingValues", MODE_PRIVATE);
 										SharedPreferences.Editor thePrefEdit = thePrefs
 												.edit();
-										thePrefEdit.remove(GlobalVar.SHARED_BLUE_NAME);
-										thePrefEdit.remove(GlobalVar.SHARED_BLUE_ADDRESS);
+										thePrefEdit
+												.remove(GlobalVar.SHARED_BLUE_NAME);
+										thePrefEdit
+												.remove(GlobalVar.SHARED_BLUE_ADDRESS);
 										thePrefEdit.commit();
 
 										theBluetoothConnection
@@ -195,8 +287,10 @@ public class SettingView extends PreferenceActivity {
 												"settingValues", MODE_PRIVATE);
 										SharedPreferences.Editor thePrefEdit = thePrefs
 												.edit();
-										thePrefEdit.remove(GlobalVar.SHARED_LOGIN_ID);
-										thePrefEdit.remove(GlobalVar.SHARED_LOGIN_IDENTITY);
+										thePrefEdit
+												.remove(GlobalVar.SHARED_LOGIN_ID);
+										thePrefEdit
+												.remove(GlobalVar.SHARED_LOGIN_IDENTITY);
 										thePrefEdit.commit();
 
 										theWebLogin.setTitle("Web 로그인");
@@ -234,7 +328,8 @@ public class SettingView extends PreferenceActivity {
 						"settingValues", MODE_PRIVATE);
 				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
 				thePrefEdit.putString(GlobalVar.SHARED_BLUE_NAME, theName);
-				thePrefEdit.putString(GlobalVar.SHARED_BLUE_ADDRESS, theAddress);
+				thePrefEdit
+						.putString(GlobalVar.SHARED_BLUE_ADDRESS, theAddress);
 				thePrefEdit.commit();
 
 				theBluetoothConnection.setTitle("Bluetooth 다른 기기 연결");
@@ -275,12 +370,68 @@ public class SettingView extends PreferenceActivity {
 						"settingValues", MODE_PRIVATE);
 				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
 				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_ID, theInfos[0]);
-				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_IDENTITY, theInfos[1]);
+				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_IDENTITY,
+						theInfos[1]);
 				thePrefEdit.commit();
 
 				theWebLogin.setTitle("Web 다른 아이디 로그인");
 				theWebLogin.setSummary(theInfos[0]);
 				theWebLogout.setEnabled(true);
+
+			}
+			break;
+		case GlobalVar.REQUEST_CAMERA_RESOLUTION:
+			if (resultCode == Activity.RESULT_OK) {
+				String theInfo = data.getExtras().getString(
+						GlobalVar.CAMERA_RESOLUTION);
+				String[] theSplit = theInfo.split(" * ");
+				
+
+				SharedPreferences thePrefs = getSharedPreferences(
+						"settingValues", MODE_PRIVATE);
+				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_WIDTH,	theSplit[0]);
+				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_HEIGHT,theSplit[2]);
+				thePrefEdit.commit();
+
+//				Log.e(GlobalVar.TAG,theSplit.length+" / W : "+theSplit[0] + " / H : "+theSplit[2]);
+				
+				theCameraResolution.setSummary(theInfo);
+
+			}
+			break;
+		case GlobalVar.REQUEST_CAMERA_STORAGE:
+			if (resultCode == Activity.RESULT_OK) {
+				String theInfo = data.getExtras().getString(
+						GlobalVar.CAMERA_STORAGE);
+				
+
+				SharedPreferences thePrefs = getSharedPreferences(
+						"settingValues", MODE_PRIVATE);
+				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE,	theInfo);
+				thePrefEdit.commit();
+
+				theCameraStorage.setSummary(theInfo);
+
+			}
+			break;
+
+		case GlobalVar.REQUEST_CAMERA_RECORD_TIME:
+			if (resultCode == Activity.RESULT_OK) {
+				String theInfo = data.getExtras().getString(
+						GlobalVar.CAMERA_RECORD_TIME);
+
+				Log.e(GlobalVar.TAG, "Time : " + theInfo);
+
+				SharedPreferences thePrefs = getSharedPreferences(
+						"settingValues", MODE_PRIVATE);
+				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_RECORD_TIME,
+						theInfo);
+				thePrefEdit.commit();
+
+				theCameraRecordTime.setSummary(theInfo);
 
 			}
 			break;

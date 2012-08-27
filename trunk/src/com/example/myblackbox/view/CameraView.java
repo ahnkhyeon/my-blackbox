@@ -67,8 +67,8 @@ public class CameraView extends Activity {
 	/** Test UI */
 	private Button theStartRecordBtn;
 	private Button theStopRecordBtn;
-	private Button theShakeBtn;
-	private Button theNoneBtn;
+//	private Button theShakeBtn;
+//	private Button theNoneBtn;
 
 	/** Date Format */
 	private SimpleDateFormat theFormat;
@@ -97,23 +97,26 @@ public class CameraView extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// TODO Auto-generated method stub
-		setContentView(R.layout.camera_view);
+//		setContentView(R.layout.camera_view);
+		setContentView(R.layout.camera);
 
 		if (theGlobalVar == null) {
 			theGlobalVar = (GlobalVar) getApplicationContext();
 		}
 		theGlobalVar.theCameraHandler = mHandler;
 
-		theStartRecordBtn = (Button) findViewById(R.id.start_record);
-		theStopRecordBtn = (Button) findViewById(R.id.stop_record);
+		
+		
+		theStartRecordBtn = (Button) findViewById(R.id.recordBtn);
+		theStopRecordBtn = (Button) findViewById(R.id.recordStopBtn);
 		theStopRecordBtn.setEnabled(false);
-		theShakeBtn = (Button) findViewById(R.id.shake);
-		theNoneBtn = (Button) findViewById(R.id.none);
+//		theShakeBtn = (Button) findViewById(R.id.shake);
+//		theNoneBtn = (Button) findViewById(R.id.none);
 
 		theStartRecordBtn.setOnClickListener(theButtonListener);
 		theStopRecordBtn.setOnClickListener(theButtonListener);
-		theShakeBtn.setOnClickListener(theButtonListener);
-		theNoneBtn.setOnClickListener(theButtonListener);
+//		theShakeBtn.setOnClickListener(theButtonListener);
+//		theNoneBtn.setOnClickListener(theButtonListener);
 
 		// Date Format Setting
 		theFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA);
@@ -140,24 +143,24 @@ public class CameraView extends Activity {
 						}
 
 						if (getShakeState() == false) {
-							setShakeState(true);
-							theRestUploadData = 2;
-
-							if (theTempDataSet == null) {
-								theTempDataSet = new ArrayList<UploadData>();
-							}
-
-							if (theUploadDataSet.size() >= 2) {
-								theTempDataSet.add(theUploadDataSet
-										.get(theUploadDataSet.size() - 2));
-							}
-
-							if (theUploadThrad == null) {
-								theUploadThrad = new UploadThread(
-										GlobalVar.theURL + "uploadVideo.php");
-							}
-
-							theUploadThrad.start();
+//							setShakeState(true);
+//							theRestUploadData = 2;
+//
+//							if (theTempDataSet == null) {
+//								theTempDataSet = new ArrayList<UploadData>();
+//							}
+//
+//							if (theUploadDataSet.size() >= 2) {
+//								theTempDataSet.add(theUploadDataSet
+//										.get(theUploadDataSet.size() - 2));
+//							}
+//
+//							if (theUploadThrad == null) {
+//								theUploadThrad = new UploadThread(
+//										GlobalVar.theURL + "uploadVideo.php");
+//							}
+//
+//							theUploadThrad.start();
 
 						}
 					}
@@ -188,7 +191,7 @@ public class CameraView extends Activity {
 
 			Message theMsg;
 			switch (v.getId()) {
-			case R.id.start_record:
+			case R.id.recordBtn:
 				theStartRecordBtn.setEnabled(false);
 				theStopRecordBtn.setEnabled(true);
 				theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(
@@ -199,7 +202,7 @@ public class CameraView extends Activity {
 				startRecordTimer();
 
 				break;
-			case R.id.stop_record:
+			case R.id.recordStopBtn:
 				theStartRecordBtn.setEnabled(true);
 				theStopRecordBtn.setEnabled(false);
 

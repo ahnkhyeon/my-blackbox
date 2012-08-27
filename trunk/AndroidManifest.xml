@@ -11,6 +11,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:name=".etc.GlobalVar"
@@ -33,7 +39,7 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".view.CameraView"
+            android:name=".view.Camera"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
@@ -56,9 +62,20 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Dialog" />
         <activity
-            android:name=".setting.SettingCameraResolutionesolution"
+            android:name=".setting.SettingCameraResolution"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@android:style/Theme.Dialog" 
+            android:label="Camera 해상도"/>
+        <activity
+            android:name=".setting.SettingCameraStorage"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Dialog"
+            android:label="Camera 총 저장용량" />
+        <activity
+            android:name=".setting.SettingCameraRecordTime"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Dialog" 
+            android:label="Camera 저장 시간"/>
         <activity
             android:name=".setting.SettingWebLogin"
             android:screenOrientation="landscape"

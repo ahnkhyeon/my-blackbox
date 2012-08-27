@@ -15,8 +15,14 @@ public class GlobalVar extends Application {
 	public static final int REQUEST_CONNECT_DEVICE = 1;
 	public static final int REQUEST_ENABLE_BT = 2;
 	public static final int REQUEST_LOGIN = 3;
+	public static final int REQUEST_CAMERA_RESOLUTION = 4;
+	public static final int REQUEST_CAMERA_STORAGE = 5;
+	public static final int REQUEST_CAMERA_RECORD_TIME = 6;
 
-	public static String EXTRA_DEVICE = "device_info";
+	public static final String EXTRA_DEVICE = "device_info";
+	public static final String CAMERA_RECORD_TIME = "recordTime";
+	public static final String CAMERA_STORAGE = "storage";
+	public static final String CAMERA_RESOLUTION = "resolution";
 
 	public static int RECONNECT_TIME = 5000;
 
@@ -67,6 +73,13 @@ public class GlobalVar extends Application {
 	public static final String SHARED_BLUE_ADDRESS = "BlueAddress";
 	public static final String SHARED_LOGIN_ID = "LoginID";
 	public static final String SHARED_LOGIN_IDENTITY = "LoginIdentity";
+	
+	public static final String SHARED_CAMERA_WIDTH = "CameraWidth";
+	public static final String SHARED_CAMERA_HEIGHT = "CameraHeight";
+	public static final String SHARED_CAMERA_STORAGE_SIZE = "VideoStorageSize";
+	public static final String SHARED_CAMERA_RECORD_TIME = "RecordSize";
+	
+
 
 	public static void popupToast(Context theCntext, String inString) {
 		Toast.makeText(theCntext, inString, Toast.LENGTH_SHORT).show();
