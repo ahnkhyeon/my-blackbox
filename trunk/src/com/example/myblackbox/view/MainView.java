@@ -57,7 +57,7 @@ public class MainView extends Activity {
 			switch (theView.getId()) {
 			case R.id.view_camera:
 				setCurrentView(GlobalVar.CURRENT_CAMERA_VIEW);
-				Intent theCameraViewIntent = new Intent(MainView.this, Camera.class);
+				Intent theCameraViewIntent = new Intent(MainView.this, CameraView.class);
 				startActivityForResult(theCameraViewIntent, GlobalVar.CURRENT_CAMERA_VIEW);
 
 				break;
@@ -160,5 +160,47 @@ public class MainView extends Activity {
 		}
 
 		return true;
+	}
+
+	/** Android Life Cycle */
+	@Override
+	public void onStart() {
+		super.onStart();
+//		Log.e(GlobalVar.TAG,"onStart()");
+	}
+
+	@Override
+	public void onRestart() {
+		super.onRestart();
+//		Log.e(GlobalVar.TAG,"onRestart()");
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+//		Log.e(GlobalVar.TAG,"onResume()");
+		
+		if(getCurrentView() != GlobalVar.CURRENT_MAIN_VIEW) {
+			setCurrentView(GlobalVar.CURRENT_MAIN_VIEW);
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+//		Log.e(GlobalVar.TAG,"onPause()");
+
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+//		Log.e(GlobalVar.TAG,"onStop()");
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
 	}
 }

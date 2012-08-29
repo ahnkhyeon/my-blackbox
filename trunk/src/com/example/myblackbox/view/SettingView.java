@@ -436,7 +436,6 @@ public class SettingView extends PreferenceActivity {
 			}
 			break;
 		}
-
 	}
 
 	/** Custom Hardware Button */
@@ -462,5 +461,45 @@ public class SettingView extends PreferenceActivity {
 		}
 
 		return true;
+	}
+	
+	/** Android Life Cycle */
+	@Override
+	public void onStart() {
+		super.onStart();
+//		Log.e(GlobalVar.TAG,"onStart()");
+	}
+
+	@Override
+	public void onRestart() {
+		super.onRestart();
+//		Log.e(GlobalVar.TAG,"onRestart()");
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+//		Log.e(GlobalVar.TAG,"onResume()");
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+//		Log.e(GlobalVar.TAG,"onPause()");
+
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+//		Log.e(GlobalVar.TAG,"onStop()");
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+//		Log.e(GlobalVar.TAG,"onDestroy()");
+	
 	}
 }
