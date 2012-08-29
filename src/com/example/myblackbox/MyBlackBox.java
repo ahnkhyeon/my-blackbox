@@ -1,6 +1,7 @@
 package com.example.myblackbox;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,12 +14,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract.Contacts.Data;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myblackbox.etc.BluetoothService;
+import com.example.myblackbox.etc.DataUploader;
 import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
+import com.example.myblackbox.etc.UploadData;
 import com.example.myblackbox.view.MainView;
 import com.example.myblackbox.view.SettingView;
 
@@ -31,6 +35,10 @@ public class MyBlackBox extends Activity {
 	private BluetoothAdapter theBluetoothAdapter;
 	private BluetoothService theBluetoothService;
 
+	/** Data Uploader Variable */
+	private DataUploader theDataUploader;
+	private ArrayList<UploadData> theUploadPool;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,6 +47,7 @@ public class MyBlackBox extends Activity {
 		// Setting Global Variable
 		theGlobalVar = (GlobalVar) getApplicationContext();
 		theGlobalVar.theBlueCommandHandler = mBlueCommandHandler;
+		theGlobalVar.theUploadHandler = mDataUploaderHandler;
 
 		// Setting Bluetooth
 		theBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -61,12 +70,19 @@ public class MyBlackBox extends Activity {
 		} else {
 			connectBluetooth(true);
 		}
-		
+
 		// Video Storage
 		File thePath = new File(GlobalVar.VIDEO_PATH);
-		if(!thePath.isDirectory()) {
+		if (!thePath.isDirectory()) {
 			thePath.mkdirs();
 		}
+
+		// Data Uploader
+		theUploadPool = new ArrayList<UploadData>();
+		theDataUploader = new DataUploader(theUploadPool, GlobalVar.WEB_URL
+				+ "uploadVideo.php");
+		theDataUploader.start();
+		theDataUploader.onPause();
 
 	}
 
@@ -96,16 +112,17 @@ public class MyBlackBox extends Activity {
 	}
 
 	private void connectBluetooth(boolean isStart) {
-		String theBlueAddress = theGlobalVar.getSharedPref(GlobalVar.SHARED_BLUE_ADDRESS);
+		String theBlueAddress = theGlobalVar
+				.getSharedPref(GlobalVar.SHARED_BLUE_ADDRESS);
 
 		if (theBlueAddress.length() != 0) {
 			if (theBluetoothService == null) {
 				theBluetoothService = new BluetoothService(mHandler);
 			}
-				BluetoothDevice theDevice = theBluetoothAdapter
-						.getRemoteDevice(theBlueAddress);
-				theBluetoothService.connect(theDevice);
-			
+			BluetoothDevice theDevice = theBluetoothAdapter
+					.getRemoteDevice(theBlueAddress);
+			theBluetoothService.connect(theDevice);
+
 		} else {
 			GlobalVar.popupToast(MyBlackBox.this, "블루투스를 등록해 주세요.");
 		}
@@ -164,8 +181,8 @@ public class MyBlackBox extends Activity {
 
 				String[] theSplit = readMessage.split("/");
 
-//				if (GlobalVar.isDebug)
-//					Log.e(GlobalVar.TAG, "Recv : " + readMessage);
+				// if (GlobalVar.isDebug)
+				// Log.e(GlobalVar.TAG, "Recv : " + readMessage);
 
 				switch (theGlobalVar.getCurrentView()) {
 				case GlobalVar.CURRENT_OBD_VIEW:
@@ -259,13 +276,29 @@ public class MyBlackBox extends Activity {
 
 				break;
 			case GlobalVar.BLUE_CONNECT:
-				Log.e(GlobalVar.TAG ,"ASDF");
+				Log.e(GlobalVar.TAG, "ASDF");
 				connectBluetooth(false);
 				break;
 			case GlobalVar.BLUE_DISCONNECT:
 				if (theBluetoothService.getState() == BluetoothService.STATE_CONNECTED) {
 					theBluetoothService.stop();
 				}
+				break;
+			}
+		}
+	};
+
+	private final Handler mDataUploaderHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case GlobalVar.ADD_UPLOAD_DATA:
+
+				
+				
+				theUploadPool.add((UploadData) msg.obj);
+				
+				theDataUploader.onResume();
 				break;
 			}
 		}

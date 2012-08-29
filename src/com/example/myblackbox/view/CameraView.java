@@ -67,8 +67,8 @@ public class CameraView extends Activity {
 	/** Test UI */
 	private Button theStartRecordBtn;
 	private Button theStopRecordBtn;
-//	private Button theShakeBtn;
-//	private Button theNoneBtn;
+	private Button theShakeBtn;
+	private Button theNoneBtn;
 
 	/** Date Format */
 	private SimpleDateFormat theFormat;
@@ -78,9 +78,6 @@ public class CameraView extends Activity {
 	private final static int MAX_UPLOAD_DATA = 10;
 
 	private int theRestUploadData = -1;
-	private ArrayList<UploadData> theTempDataSet;
-
-	private UploadThread theUploadThrad;
 
 	/** Test Timer */
 	private UploadDataTimerJob theUpladTimerJob;
@@ -97,8 +94,7 @@ public class CameraView extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// TODO Auto-generated method stub
-//		setContentView(R.layout.camera_view);
-		setContentView(R.layout.camera);
+		setContentView(R.layout.camera_view);
 
 		if (theGlobalVar == null) {
 			theGlobalVar = (GlobalVar) getApplicationContext();
@@ -107,16 +103,16 @@ public class CameraView extends Activity {
 
 		
 		
-		theStartRecordBtn = (Button) findViewById(R.id.recordBtn);
-		theStopRecordBtn = (Button) findViewById(R.id.recordStopBtn);
+		theStartRecordBtn = (Button) findViewById(R.id.start_record);
+		theStopRecordBtn = (Button) findViewById(R.id.stop_record);
 		theStopRecordBtn.setEnabled(false);
-//		theShakeBtn = (Button) findViewById(R.id.shake);
-//		theNoneBtn = (Button) findViewById(R.id.none);
+		theShakeBtn = (Button) findViewById(R.id.shake);
+		theNoneBtn = (Button) findViewById(R.id.none);
 
 		theStartRecordBtn.setOnClickListener(theButtonListener);
 		theStopRecordBtn.setOnClickListener(theButtonListener);
-//		theShakeBtn.setOnClickListener(theButtonListener);
-//		theNoneBtn.setOnClickListener(theButtonListener);
+		theShakeBtn.setOnClickListener(theButtonListener);
+		theNoneBtn.setOnClickListener(theButtonListener);
 
 		// Date Format Setting
 		theFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA);
@@ -138,30 +134,21 @@ public class CameraView extends Activity {
 
 					public void onShake() {
 						// TODO Auto-generated method stub
-						if (theStartRecordBtn.isEnabled() == true) {
-							return;
-						}
+//						if (theStartRecordBtn.isEnabled() == true) {
+//							return;
+//						}
 
 						if (getShakeState() == false) {
-//							setShakeState(true);
-//							theRestUploadData = 2;
-//
-//							if (theTempDataSet == null) {
-//								theTempDataSet = new ArrayList<UploadData>();
-//							}
-//
-//							if (theUploadDataSet.size() >= 2) {
-//								theTempDataSet.add(theUploadDataSet
-//										.get(theUploadDataSet.size() - 2));
-//							}
-//
-//							if (theUploadThrad == null) {
-//								theUploadThrad = new UploadThread(
-//										GlobalVar.theURL + "uploadVideo.php");
-//							}
-//
-//							theUploadThrad.start();
+							
 
+							setShakeState(true);
+							theRestUploadData = 2;
+							
+							if(theUploadDataSet.size() > 1) {
+								addSendPool(theUploadDataSet.get(theUploadDataSet.size()-2));
+							} else {
+								Log.e(GlobalVar.TAG,"아직 업로드 할 내용이 없음");
+							}
 						}
 					}
 				});
@@ -191,7 +178,7 @@ public class CameraView extends Activity {
 
 			Message theMsg;
 			switch (v.getId()) {
-			case R.id.recordBtn:
+			case R.id.start_record:
 				theStartRecordBtn.setEnabled(false);
 				theStopRecordBtn.setEnabled(true);
 				theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(
@@ -202,7 +189,7 @@ public class CameraView extends Activity {
 				startRecordTimer();
 
 				break;
-			case R.id.recordStopBtn:
+			case R.id.stop_record:
 				theStartRecordBtn.setEnabled(true);
 				theStopRecordBtn.setEnabled(false);
 
@@ -219,8 +206,8 @@ public class CameraView extends Activity {
 
 				HttpClient theClient = new DefaultHttpClient();
 
-				HttpPost thePost = new HttpPost(GlobalVar.theURL
-						+ "uploadVideo.php");
+				HttpPost thePost = new HttpPost(GlobalVar.WEB_URL
+						+ "test.php");
 				MultipartEntity theEntity = new MultipartEntity();
 
 				 ContentBody theFile = new FileBody(new File(
@@ -232,19 +219,19 @@ public class CameraView extends Activity {
 					theEntity.addPart("user", new StringBody(theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID)));
 					theEntity.addPart("identity", new StringBody(theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY)));
 					
-					theEntity.addPart("ObdInfo", new StringBody(
-							CreateXmlOBD(theTempData.getObdInfoSet())));
-					theEntity.addPart("GeoInfo", new StringBody(
-							CreateXmlGeo(theTempData.getGeoInfoSet())));
-				} catch (ParserConfigurationException e) {
+//					theEntity.addPart("ObdInfo", new StringBody(
+//							CreateXmlOBD(theTempData.getObdInfoSet())));
+//					theEntity.addPart("GeoInfo", new StringBody(
+//							CreateXmlGeo(theTempData.getGeoInfoSet())));
+//				} catch (ParserConfigurationException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+//					e.printStackTrace();
 				} catch (TransformerFactoryConfigurationError e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (TransformerException e) {
+//				} catch (TransformerException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+//					e.printStackTrace();
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -272,25 +259,25 @@ public class CameraView extends Activity {
 				break;
 			case R.id.none:
 
-				ArrayList<GeoInfo> tempGeoInfoSet = new ArrayList<GeoInfo>();
-
-				GeoInfo tempGeo = new GeoInfo(10.0, 20.0, "20120203");
-
-				tempGeoInfoSet.add(tempGeo);
-
-				try {
-					String Xml = CreateXmlGeo(tempGeoInfoSet);
-					Log.e(GlobalVar.TAG, "Xml : " + Xml);
-				} catch (TransformerFactoryConfigurationError e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ParserConfigurationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//				ArrayList<GeoInfo> tempGeoInfoSet = new ArrayList<GeoInfo>();
+//
+//				GeoInfo tempGeo = new GeoInfo(10.0, 20.0, "20120203");
+//
+//				tempGeoInfoSet.add(tempGeo);
+//
+//				try {
+//					String Xml = CreateXmlGeo(tempGeoInfoSet);
+//					Log.e(GlobalVar.TAG, "Xml : " + Xml);
+//				} catch (TransformerFactoryConfigurationError e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (ParserConfigurationException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (TransformerException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 
 				// try {
 				// Document doc = DocumentBuilderFactory.newInstance()
@@ -337,7 +324,15 @@ public class CameraView extends Activity {
 
 		}
 	};
+	
+	private void addSendPool(UploadData theData) {
+		Message theMsg = theGlobalVar.theUploadHandler.obtainMessage(GlobalVar.ADD_UPLOAD_DATA, theData);
+		theGlobalVar.theUploadHandler.sendMessage(theMsg);							
+		
+	}
 
+	
+	/** OBD 정보 추가 핸들러 */
 	private final Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -364,28 +359,9 @@ public class CameraView extends Activity {
 		}
 	};
 
-	// //////////////////////UPload ?///////////////////////////////////////////
 
-	private void sendUploadData() {
-		String theTestPath = "/sdcard/videoTest.mp4";
-		// String theTestPath = "/sdcard/a.jpg";
-
-		String theURL = GlobalVar.WEB_URL + "index.php";
-		Log.e(GlobalVar.TAG, "" + GlobalVar.WEB_URL + "index.php");
-
-		ArrayList<UploadData> temp = new ArrayList<UploadData>();
-
-		temp.add(theUploadDataSet.get(theUploadDataSet.size() - 2));
-		temp.add(theUploadDataSet.get(theUploadDataSet.size() - 1));
-		temp.add(theUploadDataSet.get(theUploadDataSet.size()));
-
-		// UploadThread theUpload = new UploadThread(url, theData);
-		// theUpload
-
-		// UploadThread theUpload = new UploadThread(theTestPath, theURL);
-		// theUpload.start();
-
-	}
+	
+	/** 영상 저장 테스트 */
 
 	private void startRecordTimer() {
 
@@ -412,6 +388,7 @@ public class CameraView extends Activity {
 		}
 	}
 
+	/** 영상 녹화 정지 */
 	private void startRecord() {
 		if (GlobalVar.isDebug) {
 			Log.e(GlobalVar.TAG, "StartRecord");
@@ -427,7 +404,8 @@ public class CameraView extends Activity {
 
 		theUploadDataSet.add(uploadData);
 
-		String theTestPath = "/sdcard/videoTest.mp4";
+//		String theTestPath = "/sdcard/videoTest.mp4";
+		String theTestPath = "/sdcard/a.jpg";
 
 		FileCopy theCopy = new FileCopy(theTestPath, GlobalVar.VIDEO_PATH + "/"
 				+ theDate + ".mp4");
@@ -441,13 +419,11 @@ public class CameraView extends Activity {
 
 		if (theRestUploadData > 0) {
 			theRestUploadData--;
-			theTempDataSet.add(lastUploadData());
+			addSendPool(lastUploadData());
+//			theTempDataSet.add(lastUploadData());
 		} else if (theRestUploadData == 0) {
 			setShakeState(false);
 			theRestUploadData = -1;
-
-			// sendUploadData();
-
 		}
 
 	}
@@ -469,6 +445,19 @@ public class CameraView extends Activity {
 					+ theUploadDataSet.get(i).printObdData());
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/** File Copy */
 
 	public void fileCopy(String srcPath, String dstPath) throws IOException {
 
@@ -487,6 +476,8 @@ public class CameraView extends Activity {
 		inputStream.close();
 	}
 
+	
+	
 	private class FileCopy extends Thread {
 		File theSrc;
 		File theDst;
@@ -524,191 +515,6 @@ public class CameraView extends Activity {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-		}
-	}
-
-	// //////////////////////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////////////////////
-
-	private String CreateXmlOBD(ArrayList<OBD_Info> obdInfo)
-			throws ParserConfigurationException,
-			TransformerFactoryConfigurationError, TransformerException {
-
-		Document doc = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder().newDocument();
-		
-		Element theObdInfo = doc.createElement("OBD_Info");
-		doc.appendChild(theObdInfo);
-
-		for (OBD_Info obd_Info : obdInfo) {
-
-			// create:<OBD>
-			Element theObd = doc.createElement("OBD");
-			theObdInfo.appendChild(theObd);
-
-			// create:<date>
-			Element theDate = doc.createElement("date");
-			theDate.setTextContent(obd_Info.getObdDate());
-			theObd.appendChild(theDate);
-
-			// create:<EngineRPM>
-			Element theEngineRPM = doc.createElement("EngineRPM");
-			theEngineRPM.setTextContent(obd_Info.getObdEngineRpm());
-			theObd.appendChild(theEngineRPM);
-
-			// create:<EngineTemp>
-			Element theEngineTemp = doc.createElement("EngineTemp");
-			theEngineTemp.setTextContent(obd_Info.getObdEngineTemp());
-			theObd.appendChild(theEngineTemp);
-
-			// create:<ThrottlePos>
-			Element theThrottlePos = doc.createElement("ThrottlePos");
-			theThrottlePos.setTextContent(obd_Info.getObdTrottlePos());
-			theObd.appendChild(theThrottlePos);
-
-			// create:<AirFlow>
-			Element theAirFlow = doc.createElement("AirFlow");
-			theAirFlow.setTextContent(obd_Info.getObdAirFlow());
-			theObd.appendChild(theAirFlow);
-
-			// create:<Speed>
-			Element theSpeed = doc.createElement("Speed");
-			theSpeed.setTextContent(obd_Info.getObdSpeed());
-			theObd.appendChild(theSpeed);
-
-		}
-
-		// create Transformer object
-		Transformer transformer = TransformerFactory.newInstance()
-				.newTransformer();
-		StringWriter writer = new StringWriter();
-		StreamResult result = new StreamResult(writer);
-		transformer.transform(new DOMSource(doc), result);
-
-		return writer.toString();
-
-	}
-
-	private String CreateXmlGeo(ArrayList<GeoInfo> geoInfo)
-			throws TransformerFactoryConfigurationError,
-			ParserConfigurationException, TransformerException {
-
-		Document doc = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder().newDocument();
-		
-		Element theGeoInfo = doc.createElement("GeoInfo");
-		doc.appendChild(theGeoInfo);
-
-		for (GeoInfo geo_Info : geoInfo) {
-
-			// create:<Geo>
-			Element theGeo = doc.createElement("Geo");
-			theGeoInfo.appendChild(theGeo);
-
-			// create:<date>
-			Element theDate = doc.createElement("date");
-			theDate.setTextContent(geo_Info.getDate());
-			theGeo.appendChild(theDate);
-
-			// create:<Latitude>
-			Element theLatitude = doc.createElement("Latitude");
-			theLatitude.setTextContent(Double.toString(geo_Info.getLatitude()));
-			theGeo.appendChild(theLatitude);
-
-			// create:<Longitude>
-			Element theLongitude = doc.createElement("Longitude");
-			theLongitude
-					.setTextContent(Double.toString(geo_Info.getLongitude()));
-			theGeo.appendChild(theLongitude);
-
-		}
-
-		// create Transformer object
-		Transformer transformer = TransformerFactory.newInstance()
-				.newTransformer();
-		StringWriter writer = new StringWriter();
-		StreamResult result = new StreamResult(writer);
-		transformer.transform(new DOMSource(doc), result);
-
-		return writer.toString();
-
-	}
-
-	private class UploadThread extends Thread {
-		private String theURL;
-
-		public UploadThread(String url) {
-			// TODO Auto-generated constructor stub
-			theURL = url;
-		}
-
-		public void run() {
-
-			UploadData theTempData;
-			while (!theTempDataSet.isEmpty() || getShakeState() == true) {
-				Log.e(GlobalVar.TAG, "UploadThread");
-				if (theTempDataSet.isEmpty()) {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					continue;
-				}
-
-				theTempData = theTempDataSet.get(0);
-
-				try {
-					HttpClient theClient = new DefaultHttpClient();
-
-					HttpPost thePost = new HttpPost(theURL);
-					MultipartEntity theEntity = new MultipartEntity();
-
-					ContentBody theFile = new FileBody(new File(
-							theTempData.getVideoPath()));
-					theEntity.addPart("video", theFile);
-
-					try {
-						theEntity.addPart("ObdInfo", new StringBody(
-								CreateXmlOBD(theTempData.getObdInfoSet())));
-						theEntity.addPart("GeoInfo", new StringBody(
-								CreateXmlGeo(theTempData.getGeoInfoSet())));
-					} catch (ParserConfigurationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (TransformerFactoryConfigurationError e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (TransformerException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					thePost.setEntity(theEntity);
-
-					HttpResponse theResponse = theClient.execute(thePost);
-
-					HttpEntity theResEntity = theResponse.getEntity();
-
-					String theResponseString = EntityUtils
-							.toString(theResEntity);
-
-					Log.e(GlobalVar.TAG, "Response : " + theResponseString);
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClientProtocolException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				theTempDataSet.remove(0);
 			}
 		}
 	}

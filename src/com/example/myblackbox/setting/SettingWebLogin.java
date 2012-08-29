@@ -150,9 +150,9 @@ public class SettingWebLogin extends Activity {
 
 			params.put("user_id", theLoginID.getText());
 			params.put("user_pw", theLoginPW.getText());
-
+ 
 			try {
-				String theResult = com.request(new URL(GlobalVar.theURL
+				String theResult = com.request(new URL(GlobalVar.WEB_URL
 						+ "loginForMobile.php"), "POST", params);
 				Log.e(GlobalVar.TAG, theResult);
 

@@ -27,7 +27,6 @@ public class GlobalVar extends Application {
 	public static int RECONNECT_TIME = 5000;
 
 	// Web login
-	public static final String theURL = "http://192.168.0.13/MyCarServer/";
 
 	public static final int DIALOG_PROGRESS_ID = 1;
 
@@ -49,6 +48,7 @@ public class GlobalVar extends Application {
 	public Handler theBlueCommandHandler;
 	public Handler theObdHandler;
 	public Handler theCameraHandler;
+	public Handler theUploadHandler;
 
 	public static final int OBD_INFO_FROM_OBD = 1;
 	public static final int OBD_INFO_FROM_CAMERA = 2;
@@ -66,7 +66,7 @@ public class GlobalVar extends Application {
 	public static final String VIDEO_PATH = "/sdcard/MyBlackBox";
 
 	// Web Address
-	public static final String WEB_URL = "http://192.168.0.13/MyCarServer/";
+	public static final String WEB_URL = "http://192.168.0.121/MyCarServer/";
 
 	// Shared Preferences
 	public static final String SHARED_BLUE_NAME = "BlueName";
@@ -78,6 +78,9 @@ public class GlobalVar extends Application {
 	public static final String SHARED_CAMERA_HEIGHT = "CameraHeight";
 	public static final String SHARED_CAMERA_STORAGE_SIZE = "VideoStorageSize";
 	public static final String SHARED_CAMERA_RECORD_TIME = "RecordSize";
+	
+	// Upload Data
+	public static final int ADD_UPLOAD_DATA = 1;
 	
 
 
