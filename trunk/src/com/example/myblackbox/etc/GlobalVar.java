@@ -52,6 +52,8 @@ public class GlobalVar extends Application {
 
 	public static final int OBD_INFO_FROM_OBD = 1;
 	public static final int OBD_INFO_FROM_CAMERA = 2;
+	public static final int GEO_INFO_FROM_CAMERA = 3;
+	
 
 	/** Currnet View */
 	private int currentView;
@@ -66,7 +68,7 @@ public class GlobalVar extends Application {
 	public static final String VIDEO_PATH = "/sdcard/MyBlackBox";
 
 	// Web Address
-	public static final String WEB_URL = "http://192.168.0.121/MyCarServer/";
+	public static final String WEB_URL = "http://192.168.0.13/MyCarServer/";
 
 	// Shared Preferences
 	public static final String SHARED_BLUE_NAME = "BlueName";
@@ -74,8 +76,9 @@ public class GlobalVar extends Application {
 	public static final String SHARED_LOGIN_ID = "LoginID";
 	public static final String SHARED_LOGIN_IDENTITY = "LoginIdentity";
 	
-	public static final String SHARED_CAMERA_WIDTH = "CameraWidth";
-	public static final String SHARED_CAMERA_HEIGHT = "CameraHeight";
+//	public static final String SHARED_CAMERA_WIDTH = "CameraWidth";
+//	public static final String SHARED_CAMERA_HEIGHT = "CameraHeight";
+	public static final String SHARED_CAMERA_QUAILTY = "CameraQuailty";
 	public static final String SHARED_CAMERA_STORAGE_SIZE = "VideoStorageSize";
 	public static final String SHARED_CAMERA_RECORD_TIME = "RecordSize";
 	

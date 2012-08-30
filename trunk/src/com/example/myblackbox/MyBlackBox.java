@@ -38,7 +38,7 @@ public class MyBlackBox extends Activity {
 	/** Data Uploader Variable */
 	private DataUploader theDataUploader;
 	private ArrayList<UploadData> theUploadPool;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -80,7 +80,9 @@ public class MyBlackBox extends Activity {
 		// Data Uploader
 		theUploadPool = new ArrayList<UploadData>();
 		theDataUploader = new DataUploader(theUploadPool, GlobalVar.WEB_URL
-				+ "uploadVideo.php");
+				+ "uploadVideo.php",
+				theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID),
+				theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY));
 		theDataUploader.start();
 		theDataUploader.onPause();
 
@@ -293,12 +295,20 @@ public class MyBlackBox extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case GlobalVar.ADD_UPLOAD_DATA:
+				
+				
+				if(msg.obj == null) {
+					theDataUploader.onResume();
+				} else {
+				
 
-				
-				
 				theUploadPool.add((UploadData) msg.obj);
-				
+
+				Log.e(GlobalVar.TAG,
+						"Upload Data : " + ((UploadData) msg.obj).getDate());
+
 				theDataUploader.onResume();
+				}
 				break;
 			}
 		}

@@ -29,7 +29,7 @@ public class SettingCameraStorage extends Activity {
 	    
 	    theStorageSize = new ArrayList<String>();
 	    
-	    for(int i = 0 ; i < STORAGE_SIZE.length ; i++) {
+	    for(int i = 0 ; i < STORAGE_SIZE.length ; i++) { 
 	    	theStorageSize.add(STORAGE_SIZE[i]+" GB");
 	    }
 	    
@@ -47,7 +47,7 @@ public class SettingCameraStorage extends Activity {
 					int position, long id) {
 				
 				Intent intent = new Intent();
-				intent.putExtra(GlobalVar.CAMERA_STORAGE, STORAGE_SIZE[position]+" GB");
+				intent.putExtra(GlobalVar.CAMERA_STORAGE, STORAGE_SIZE[position]+"");
 				setResult(Activity.RESULT_OK, intent);
 				finish();
 			}
