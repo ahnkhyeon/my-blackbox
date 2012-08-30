@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.media.CamcorderProfile;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -87,10 +88,8 @@ public class SettingView extends PreferenceActivity {
 		String theWebIdentity = thePrefs.getString(
 				GlobalVar.SHARED_LOGIN_IDENTITY, "");
 
-		String theResolWidth = thePrefs.getString(
-				GlobalVar.SHARED_CAMERA_WIDTH, "");
-		String theResolHeight = thePrefs.getString(
-				GlobalVar.SHARED_CAMERA_HEIGHT, "");
+		String theCameraQuailty = thePrefs.getString(
+				GlobalVar.SHARED_CAMERA_QUAILTY, "");
 		String theRecordTime = thePrefs.getString(
 				GlobalVar.SHARED_CAMERA_RECORD_TIME, "");
 		String theStorageSize = thePrefs.getString(
@@ -118,49 +117,50 @@ public class SettingView extends PreferenceActivity {
 			theWebLogout.setEnabled(true);
 		}
 
-		if (theResolWidth.length() == 0 || theResolHeight.length() == 0) {
+		if (theCameraQuailty.length() == 0) {
 			Camera mCamera = Camera.open();
 			Camera.Parameters params = mCamera.getParameters();
-			List<Size> tempParms = params.getSupportedPreviewSizes();
-			
-			String width = ""+tempParms.get(0).width;
-			String height = ""+tempParms.get(0).height;
-
-			mCamera.release();
-			mCamera = null;
-			
 			
 			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
 			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_WIDTH, width);
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_HEIGHT, height);
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_QUAILTY, CamcorderProfile.QUALITY_HIGH+"");
 			thePrefEdit.commit();
 			
-			theCameraResolution.setSummary(width+" * "+height);
+			theCameraResolution.setSummary("High Quailty");
 		} else {
-			theCameraResolution.setSummary(theResolWidth+" * "+theResolHeight);
+			
+			switch (Integer.parseInt(theCameraQuailty)) {
+			case CamcorderProfile.QUALITY_HIGH:
+				theCameraResolution.setSummary("High Quailty");	
+				break;
+			case CamcorderProfile.QUALITY_LOW:
+				theCameraResolution.setSummary("Low Quailty");
+				break;
+			}
+			
+			
 		}
 
 		if (theRecordTime.length() == 0) {
 			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
 			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_RECORD_TIME, "1분");
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_RECORD_TIME, "1");
 			thePrefEdit.commit();
 			
-			theCameraRecordTime.setSummary("1분");
+			theCameraRecordTime.setSummary("1");
 		} else {
-			theCameraRecordTime.setSummary(theRecordTime);
+			theCameraRecordTime.setSummary(theRecordTime+"분");
 		}
 
 		if (theStorageSize.length() == 0) {
 			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
 			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "1 GB");
+			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "1");
 			thePrefEdit.commit();
 			
-			theCameraStorage.setSummary("1GB");
+			theCameraStorage.setSummary("1 GB");
 		} else {
-			theCameraStorage.setSummary(theStorageSize);
+			theCameraStorage.setSummary(theStorageSize + " GB");
 		}
 	}
 
@@ -384,20 +384,22 @@ public class SettingView extends PreferenceActivity {
 			if (resultCode == Activity.RESULT_OK) {
 				String theInfo = data.getExtras().getString(
 						GlobalVar.CAMERA_RESOLUTION);
-				String[] theSplit = theInfo.split(" * ");
 				
 
 				SharedPreferences thePrefs = getSharedPreferences(
 						"settingValues", MODE_PRIVATE);
 				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_WIDTH,	theSplit[0]);
-				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_HEIGHT,theSplit[2]);
+				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_QUAILTY, theInfo);
 				thePrefEdit.commit();
-
-//				Log.e(GlobalVar.TAG,theSplit.length+" / W : "+theSplit[0] + " / H : "+theSplit[2]);
 				
-				theCameraResolution.setSummary(theInfo);
-
+				switch (Integer.parseInt(theInfo)) {
+				case CamcorderProfile.QUALITY_HIGH:
+					theCameraResolution.setSummary("High Quailty");	
+					break;
+				case CamcorderProfile.QUALITY_LOW:
+					theCameraResolution.setSummary("Low Quailty");
+					break;
+				}
 			}
 			break;
 		case GlobalVar.REQUEST_CAMERA_STORAGE:
@@ -412,7 +414,7 @@ public class SettingView extends PreferenceActivity {
 				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE,	theInfo);
 				thePrefEdit.commit();
 
-				theCameraStorage.setSummary(theInfo);
+				theCameraStorage.setSummary(theInfo+" GB");
 
 			}
 			break;
@@ -431,7 +433,7 @@ public class SettingView extends PreferenceActivity {
 						theInfo);
 				thePrefEdit.commit();
 
-				theCameraRecordTime.setSummary(theInfo);
+				theCameraRecordTime.setSummary(theInfo+"분");
 
 			}
 			break;

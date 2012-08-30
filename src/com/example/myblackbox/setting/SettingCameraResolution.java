@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.media.CamcorderProfile;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,8 +21,11 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class SettingCameraResolution extends Activity {
 
-	
+	public final static int RESOLUTION[] = { CamcorderProfile.QUALITY_HIGH,
+			CamcorderProfile.QUALITY_LOW };
+
 	ArrayList<String> theVideoSize;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,35 +33,40 @@ public class SettingCameraResolution extends Activity {
 		setContentView(R.layout.setting_camera_resolution);
 		// TODO Auto-generated method stub
 
-		Camera mCamera = Camera.open();
-		Camera.Parameters params = mCamera.getParameters();
-		List<Size> tempParms = params.getSupportedPreviewSizes();
-
 		theVideoSize = new ArrayList<String>();
-		for (int i = 0; i < tempParms.size(); i++) {
-			theVideoSize.add(tempParms.get(i).width + " * "
-					+ tempParms.get(i).height);
-		}
-		mCamera.release();
-		mCamera = null;
-		
-		
-		ArrayAdapter<String> theAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, theVideoSize);
+
+		theVideoSize.add("High Quality");
+		theVideoSize.add("Low Quality");
+
+		// Camera mCamera = Camera.open();
+		// Camera.Parameters params = mCamera.getParameters();
+		// List<Size> tempParms = params.getSupportedPreviewSizes();
+		//
+		// theVideoSize = new ArrayList<String>();
+		// for (int i = 0; i < tempParms.size(); i++) {
+		// theVideoSize.add(tempParms.get(i).width + " * "
+		// + tempParms.get(i).height);
+		// }
+		// mCamera.release();
+		// mCamera = null;
+
+		ArrayAdapter<String> theAdapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, theVideoSize);
 
 		ListView theListView = (ListView) findViewById(R.id.list_setting_camera_resolution);
 		theListView.setAdapter(theAdapter);
-		
-		
+
 		theListView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				
+
 				Intent intent = new Intent();
-				intent.putExtra(GlobalVar.CAMERA_RESOLUTION, theVideoSize.get(position));
+				intent.putExtra(GlobalVar.CAMERA_RESOLUTION,
+						RESOLUTION[position]);
 				setResult(Activity.RESULT_OK, intent);
 				finish();
 			}
 		});
-		
+
 	}
 }

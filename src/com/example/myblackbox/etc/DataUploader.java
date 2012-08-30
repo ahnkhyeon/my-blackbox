@@ -33,6 +33,9 @@ import android.util.Log;
 
 public class DataUploader extends Thread {
 
+	private String theUser;
+	private String theIdentity;
+	
 	private ArrayList<UploadData> theUploadPool;
 	private String theUploadURL;
 
@@ -40,8 +43,14 @@ public class DataUploader extends Thread {
 	private boolean mPaused;
 	private boolean mFinished;
 
-	public DataUploader(ArrayList<UploadData> thePool, String url) {
+	public DataUploader(ArrayList<UploadData> thePool, String url, String user, String identity) {
 		// TODO Auto-generated constructor stub
+		
+		
+		theUser = user;
+		theIdentity = identity;
+		
+		
 		theUploadPool = thePool;
 		theUploadURL = url;
 
@@ -116,6 +125,9 @@ public class DataUploader extends Thread {
 					new StringBody(CreateXmlOBD(theData.getObdInfoSet())));
 			theEntity.addPart("GeoInfo",
 					new StringBody(CreateXmlGeo(theData.getGeoInfoSet())));
+			
+			theEntity.addPart("user", new StringBody(theUser));
+			theEntity.addPart("identity", new StringBody(theIdentity));
 
 			thePost.setEntity(theEntity);
 

@@ -51,7 +51,7 @@ public class SettingCameraRecordTime extends Activity {
 					int position, long id) {
 				
 				Intent intent = new Intent();
-				intent.putExtra(GlobalVar.CAMERA_RECORD_TIME, RECORD_TIME[position]+"분");
+				intent.putExtra(GlobalVar.CAMERA_RECORD_TIME, RECORD_TIME[position]+"");
 				setResult(Activity.RESULT_OK, intent);
 				finish();
 			}
