@@ -1,8 +1,11 @@
 package com.example.myblackbox.view;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,6 +13,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -143,7 +160,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				.setOnShakeListener(new ShakeEventListener.OnShakeListener() {
 
 					public void onShake() {
-						// TODO Auto-generated method stub
+						//  Auto-generated method stub
 						if (recordBtn.isEnabled() == true) {
 							return;
 						}
@@ -151,7 +168,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 						if (getShakeState() == false) {
 
 							setShakeState(true);
-							theRestUploadData = 2;
+							theRestUploadData = 3;
 
 							if (theUploadDataSet.size() > 1) {
 								addSendPool(theUploadDataSet
@@ -304,6 +321,22 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 		// 업로드 데이터 저장으로 표시
 		lastUploadData().setSaved(true);
+		try {
+			lastUploadData().createDataFile(GlobalVar.DATA_PATH, GlobalVar.VIDEO_PATH);
+		} catch (FileNotFoundException e) {
+			//  Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			//  Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransformerFactoryConfigurationError e) {
+			//  Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			//  Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 
 		printUploadData();
 
@@ -420,6 +453,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				Log.e(GlobalVar.TAG, "Shake() ON");
 			} else {
 				Log.e(GlobalVar.TAG, "Shake() OFF");
+				addSendPool(null);
+
 			}
 		}
 
@@ -467,12 +502,6 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 	}
 
-	// ecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-	// recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-	// recorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-	// recorder.setOutputFile(PATH_TO_FILE);
-	// recorder.setPreviewDisplay(holder.getSurface());
-	// recorder.prepare();
 	/*****************************************************************
 	 * Camera
 	 *****************************************************************/
@@ -493,18 +522,9 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			recorder.setCamera(mCamera);
 			recorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
 			recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-			// recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+
 			recorder.setProfile(CamcorderProfile.get(CameraQuailty));
 
-			// CamcorderProfile cpHigh =
-			// CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-			// recorder.setProfile(cpHigh);
-			//
-			// recorder.setVideoSize(CameraWidth, CameraHeight);
-			// recorder.setVideoFrameRate(30);
-			// recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-			// recorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-			//
 			Log.e(TAG, "current filename : " + filename);
 
 			// 미리보기 디스플레이 surfaceview 화면 설정
@@ -880,4 +900,6 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 		return geoString.toString();
 	}
+
+	
 }

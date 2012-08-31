@@ -66,9 +66,12 @@ public class GlobalVar extends Application {
 
 	// Video Storage
 	public static final String VIDEO_PATH = "/sdcard/MyBlackBox";
+	public static final String DATA_PATH = "/sdcard/MyBlackBox/Data";
+	public static final String EVENT_PATH = "/sdcard/MyBlackBox/Event";
+	public static final String EVENT_DATA_PATH = "/sdcard/MyBlackBox/Event/Data";
 
 	// Web Address
-	public static final String WEB_URL = "http://192.168.0.13/MyCarServer/";
+	public static final String WEB_URL = "http://192.168.0.121/MyCarServer/";
 
 	// Shared Preferences
 	public static final String SHARED_BLUE_NAME = "BlueName";
