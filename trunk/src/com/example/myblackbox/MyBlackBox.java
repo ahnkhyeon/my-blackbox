@@ -1,7 +1,16 @@
 package com.example.myblackbox;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,11 +19,9 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.ContactsContract.Contacts.Data;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,7 +31,6 @@ import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
 import com.example.myblackbox.etc.UploadData;
 import com.example.myblackbox.view.MainView;
-import com.example.myblackbox.view.SettingView;
 
 public class MyBlackBox extends Activity {
 
@@ -72,10 +78,7 @@ public class MyBlackBox extends Activity {
 		}
 
 		// Video Storage
-		File thePath = new File(GlobalVar.VIDEO_PATH);
-		if (!thePath.isDirectory()) {
-			thePath.mkdirs();
-		}
+		createStorgeDir();
 
 		// Data Uploader
 		theUploadPool = new ArrayList<UploadData>();
@@ -295,19 +298,27 @@ public class MyBlackBox extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case GlobalVar.ADD_UPLOAD_DATA:
-				
-				
-				if(msg.obj == null) {
+
+				if (msg.obj == null) {
 					theDataUploader.onResume();
 				} else {
-				
 
-				theUploadPool.add((UploadData) msg.obj);
+					UploadData theData = (UploadData) msg.obj;
 
-				Log.e(GlobalVar.TAG,
-						"Upload Data : " + ((UploadData) msg.obj).getDate());
+					// Upload Data 추가
+					theUploadPool.add(theData);
 
-				theDataUploader.onResume();
+					Log.e(GlobalVar.TAG, "Upload Data : " + theData.getDate());
+
+					// Event 디렉토리로 복사
+					DataFileCopy theFileCopy = new DataFileCopy(
+							theData.getVideoPath(), GlobalVar.EVENT_PATH + "/"
+									+ theData.getDate() + ".mp4", theData);
+					theFileCopy.start();
+
+					// Uload 시작
+					theDataUploader.onResume();
+
 				}
 				break;
 			}
@@ -333,5 +344,87 @@ public class MyBlackBox extends Activity {
 				});
 		AlertDialog alert = alert_confirm.create();
 		alert.show();
+	}
+
+	private void createStorgeDir() {
+		File thePath;
+
+		thePath = new File(GlobalVar.VIDEO_PATH);
+		if (!thePath.isDirectory()) {
+			thePath.mkdirs();
+		}
+
+		thePath = new File(GlobalVar.DATA_PATH);
+		if (!thePath.isDirectory()) {
+			thePath.mkdirs();
+		}
+
+		thePath = new File(GlobalVar.EVENT_PATH);
+		if (!thePath.isDirectory()) {
+			thePath.mkdirs();
+		}
+
+		thePath = new File(GlobalVar.EVENT_DATA_PATH);
+		if (!thePath.isDirectory()) {
+			thePath.mkdirs();
+		}
+
+	}
+
+	private class DataFileCopy extends Thread {
+		File theSrc;
+		File theDst;
+		UploadData theData;
+
+		public DataFileCopy(String src, String dst, UploadData data) {
+			// TODO Auto-generated constructor stub
+
+			theSrc = new File(src);
+			theDst = new File(dst);
+			theData = data;
+			// Log.e(GlobalVar.TAG, "Dest : " + dst);
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			super.run();
+			Log.e(GlobalVar.TAG, "File Copy Start");
+			try {
+				FileInputStream inputStream = new FileInputStream(theSrc);
+				FileOutputStream outputStream = new FileOutputStream(theDst);
+
+				FileChannel fcin = inputStream.getChannel();
+				FileChannel fcout = outputStream.getChannel();
+
+				long size = fcin.size();
+
+				fcin.transferTo(0, size, fcout);
+				fcout.close();
+				fcin.close();
+				outputStream.close();
+				inputStream.close();
+
+				theData.createDataFile(GlobalVar.EVENT_DATA_PATH,
+						GlobalVar.EVENT_PATH);
+
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerFactoryConfigurationError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Log.e(GlobalVar.TAG, "File Copy End");
+		}
 	}
 }
