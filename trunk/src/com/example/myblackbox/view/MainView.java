@@ -62,6 +62,8 @@ public class MainView extends Activity {
 				break;
 			case R.id.view_video:
 				setCurrentView(GlobalVar.CURRENT_VIDEO_VIEW);
+				Intent theVideoViewIntent = new Intent(MainView.this, VideoView.class);
+				startActivityForResult(theVideoViewIntent, GlobalVar.CURRENT_VIDEO_VIEW);
 
 				break;
 			case R.id.view_obd:
