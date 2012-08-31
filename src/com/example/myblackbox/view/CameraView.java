@@ -115,6 +115,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private final static int MAX_UPLOAD_DATA = 10;
 
 	private int theRestUploadData = -1;
+	private static final int NUMBER_UPLOAD_ITEM = 3;
 
 	/** Shake Sensor */
 	private SensorManager mSensorManager;
@@ -139,7 +140,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		StorageSize = (long) Integer.parseInt(theGlobalVar
 				.getSharedPref(GlobalVar.SHARED_CAMERA_STORAGE_SIZE))
 				* (long) 1024 * (long) 1024 * (long) 1024;
-		Log.e(GlobalVar.TAG, "StorageSiae : " + StorageSize);
+		//Log.e(GlobalVar.TAG, "StorageSiae : " + StorageSize);
 
 		RecordTime = Integer.parseInt(theGlobalVar
 				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 60000;
@@ -168,13 +169,13 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 						if (getShakeState() == false) {
 
 							setShakeState(true);
-							theRestUploadData = 3;
+							theRestUploadData = NUMBER_UPLOAD_ITEM-1;
 
 							if (theUploadDataSet.size() > 1) {
 								addSendPool(theUploadDataSet
 										.get(theUploadDataSet.size() - 2));
 							} else {
-								Log.e(GlobalVar.TAG, "아직 업로드 할 내용이 없음");
+								//Log.e(GlobalVar.TAG, "아직 업로드 할 내용이 없음");
 							}
 						}
 					}
@@ -387,10 +388,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				if (theUploadData != null) {
 					theUploadData.addObdInfo(theInputOBD);
 
-					Log.e(GlobalVar.TAG,
-							"Recv OBD : " + theInputOBD.getObdDate());
+					//Log.e(GlobalVar.TAG,
+//							"Recv OBD : " + theInputOBD.getObdDate());
 				} else {
-					Log.e(GlobalVar.TAG, "theUploadData is Null");
+					//Log.e(GlobalVar.TAG, "theUploadData is Null");
 				}
 
 				break;
@@ -402,10 +403,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				if (theUploadData != null) {
 					theUploadData.addGeoInfo(theInputGeo);
 
-					Log.e(GlobalVar.TAG,
-							"Recv Geo : " + theInputGeo.getLatitude());
+					//Log.e(GlobalVar.TAG,
+//							"Recv Geo : " + theInputGeo.getLatitude());
 				} else {
-					Log.e(GlobalVar.TAG, "theUploadData is Null");
+					//Log.e(GlobalVar.TAG, "theUploadData is Null");
 				}
 
 			}
@@ -423,8 +424,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private void printUploadData() {
 
 		for (int i = 0; i < theUploadDataSet.size(); i++) {
-			Log.e(GlobalVar.TAG, "Data " + i + " : "
-					+ theUploadDataSet.get(i).printObdData());
+			//Log.e(GlobalVar.TAG, "Data " + i + " : "
+//					+ theUploadDataSet.get(i).printObdData());
 		}
 	}
 
@@ -450,9 +451,9 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 		if (GlobalVar.isDebug) {
 			if (shake) {
-				Log.e(GlobalVar.TAG, "Shake() ON");
+				//Log.e(GlobalVar.TAG, "Shake() ON");
 			} else {
-				Log.e(GlobalVar.TAG, "Shake() OFF");
+				//Log.e(GlobalVar.TAG, "Shake() OFF");
 				addSendPool(null);
 
 			}
@@ -492,7 +493,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 
 		super.onPause();
-		Log.e("lifecycle", "onPause()");
+		//Log.e("lifecycle", "onPause()");
 	}
 
 	protected void onDestroy() {
@@ -525,7 +526,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 			recorder.setProfile(CamcorderProfile.get(CameraQuailty));
 
-			Log.e(TAG, "current filename : " + filename);
+			//Log.e(TAG, "current filename : " + filename);
 
 			// 미리보기 디스플레이 surfaceview 화면 설정
 			recorder.setOutputFile(filename);
@@ -541,14 +542,14 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			String theDate = filename.substring(
 					GlobalVar.VIDEO_PATH.length() + 1, filename.length() - 4);
 
-			// Log.e(GlobalVar.TAG, "Date : " + theDate);
+			// //Log.e(GlobalVar.TAG, "Date : " + theDate);
 
 			UploadData uploadData = new UploadData(theDate);
 
 			theUploadDataSet.add(uploadData);
 
 		} catch (Exception ex) {
-			Log.e(TAG, "Exception : ", ex);
+			//Log.e(TAG, "Exception : ", ex);
 
 			recorder.release();
 			recorder = null;
@@ -627,7 +628,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		} catch (IOException exception) {
 			mCamera.release();
 			mCamera = null;
-			Log.e("created", "asdf");
+			//Log.e("created", "asdf");
 			// : add more exception handling logic here
 		}
 	}
@@ -636,7 +637,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		// Auto-generated method stub
 		// mCamera.stopPreview();
 		// mCamera.release();
-		Log.e("destory", "asdf");
+		//Log.e("destory", "asdf");
 		mCamera = null;
 	}
 
@@ -688,8 +689,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			// 타겟파일이 지정 됬을 경우에 파일을 삭제
 			if (targetFile != null) {
 				targetFile.delete();
-				Log.e(GlobalVar.TAG, "파일을 삭제하셨습니다 : " + targetFile.getPath()
-						+ "/" + targetFile.getName());
+				//Log.e(GlobalVar.TAG, "파일을 삭제하셨습니다 : " + targetFile.getPath()
+//						+ "/" + targetFile.getName());
 			}
 		}
 	}
@@ -712,14 +713,14 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				isStorage = false;
 			}
 
-			Log.e("exit", "종료");
+			//Log.e("exit", "종료");
 		}
 
 		// 녹화버튼이 클릭시에 스레드를 정지시킬 interrupt
 		public void interrupt() {
 			super.interrupt();
 			isStorage = false;
-			Log.e("cancle", "자니?");
+			//Log.e("cancle", "자니?");
 
 		}
 	}

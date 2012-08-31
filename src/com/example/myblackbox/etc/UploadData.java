@@ -204,7 +204,7 @@ public class UploadData {
 
 		transformer.transform(source, result);
 
-		Log.e(GlobalVar.TAG, "Xml File Saved!");
+		//Log.e(GlobalVar.TAG, "Xml File Saved!");
 
 	}
 }

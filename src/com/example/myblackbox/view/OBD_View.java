@@ -106,7 +106,7 @@ public class OBD_View extends Activity {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_BACK:
 			if (GlobalVar.isDebug)
-				Log.e(GlobalVar.TAG, "KeyCode Back");
+				//Log.e(GlobalVar.TAG, "KeyCode Back");
 			
 			
 
@@ -115,11 +115,11 @@ public class OBD_View extends Activity {
 			return false;
 		case KeyEvent.KEYCODE_VOLUME_UP:
 			if (GlobalVar.isDebug)
-				Log.e(GlobalVar.TAG, "KeyCode Valume Up");
+				//Log.e(GlobalVar.TAG, "KeyCode Valume Up");
 			return false;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			if (GlobalVar.isDebug)
-				Log.e(GlobalVar.TAG, "KeyCode Balume Down");
+				//Log.e(GlobalVar.TAG, "KeyCode Balume Down");
 			return false;
 		}
 
@@ -129,39 +129,39 @@ public class OBD_View extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-//		Log.e(GlobalVar.TAG,"onStart()");
+//		//Log.e(GlobalVar.TAG,"onStart()");
 	}
 
 	@Override
 	public void onRestart() {
 		super.onRestart();
-//		Log.e(GlobalVar.TAG,"onRestart()");
+//		//Log.e(GlobalVar.TAG,"onRestart()");
 
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-//		Log.e(GlobalVar.TAG,"onResume()");
+//		//Log.e(GlobalVar.TAG,"onResume()");
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-//		Log.e(GlobalVar.TAG,"onPause()");
+//		//Log.e(GlobalVar.TAG,"onPause()");
 
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-//		Log.e(GlobalVar.TAG,"onStop()");
+//		//Log.e(GlobalVar.TAG,"onStop()");
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-//		Log.e(GlobalVar.TAG,"onDestroy()");
+//		//Log.e(GlobalVar.TAG,"onDestroy()");
 		
 		Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(GlobalVar.BLUE_FIN_SEND_DATA);
 		theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);

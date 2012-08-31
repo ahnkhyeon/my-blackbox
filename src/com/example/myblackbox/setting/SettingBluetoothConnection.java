@@ -113,7 +113,7 @@ public class SettingBluetoothConnection extends Activity {
 	 * Start device discover with the BluetoothAdapter
 	 */
 	private void doDiscovery() {
-		Log.e(GlobalVar.TAG, "doDiscovery()");
+		//Log.e(GlobalVar.TAG, "doDiscovery()");
 
 		// Indicate scanning in the title
 		setProgressBarIndeterminateVisibility(true);
@@ -142,7 +142,7 @@ public class SettingBluetoothConnection extends Activity {
 			String info = ((TextView) v).getText().toString();
 			// String address = info.substring(info.length() - 17);
 			// String name = info.substring(0,info.length() - 18);
-			// Log.e(TAG,"Name : "+name+"/Address: "+address);
+			// //Log.e(TAG,"Name : "+name+"/Address: "+address);
 
 			// Create the result Intent and include the MAC address
 			Intent intent = new Intent();

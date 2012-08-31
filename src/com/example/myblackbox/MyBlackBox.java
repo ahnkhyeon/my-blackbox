@@ -174,7 +174,7 @@ public class MyBlackBox extends Activity {
 				// construct a string from the buffer
 				String writeMessage = new String(writeBuf);
 				if (GlobalVar.isDebug) {
-					Log.e(GlobalVar.TAG, "Send : " + writeMessage);
+					//Log.e(GlobalVar.TAG, "Send : " + writeMessage);
 				}
 				// mConversationArrayAdapter.add("Me:  " + writeMessage);
 				break;
@@ -187,7 +187,7 @@ public class MyBlackBox extends Activity {
 				String[] theSplit = readMessage.split("/");
 
 				// if (GlobalVar.isDebug)
-				// Log.e(GlobalVar.TAG, "Recv : " + readMessage);
+				// //Log.e(GlobalVar.TAG, "Recv : " + readMessage);
 
 				switch (theGlobalVar.getCurrentView()) {
 				case GlobalVar.CURRENT_OBD_VIEW:
@@ -227,7 +227,7 @@ public class MyBlackBox extends Activity {
 				 * switch (Integer.parseInt(theSplit[0])) { case
 				 * BLUE_ACK_OBD_INFO: if (getState() == BLUE_REQ_OBD_INFO) {
 				 * setState(BLUE_SEND_OBD_INFO); if (GlobalVar.isDebug)
-				 * Log.e(GlobalVar.TAG, "Send Ack");
+				 * //Log.e(GlobalVar.TAG, "Send Ack");
 				 * 
 				 * }
 				 * 
@@ -281,7 +281,7 @@ public class MyBlackBox extends Activity {
 
 				break;
 			case GlobalVar.BLUE_CONNECT:
-				Log.e(GlobalVar.TAG, "ASDF");
+				//Log.e(GlobalVar.TAG, "ASDF");
 				connectBluetooth(false);
 				break;
 			case GlobalVar.BLUE_DISCONNECT:
@@ -308,7 +308,7 @@ public class MyBlackBox extends Activity {
 					// Upload Data 추가
 					theUploadPool.add(theData);
 
-					Log.e(GlobalVar.TAG, "Upload Data : " + theData.getDate());
+					//Log.e(GlobalVar.TAG, "Upload Data : " + theData.getDate());
 
 					// Event 디렉토리로 복사
 					DataFileCopy theFileCopy = new DataFileCopy(
@@ -382,14 +382,14 @@ public class MyBlackBox extends Activity {
 			theSrc = new File(src);
 			theDst = new File(dst);
 			theData = data;
-			// Log.e(GlobalVar.TAG, "Dest : " + dst);
+			// //Log.e(GlobalVar.TAG, "Dest : " + dst);
 		}
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
 			super.run();
-			Log.e(GlobalVar.TAG, "File Copy Start");
+			//Log.e(GlobalVar.TAG, "File Copy Start");
 			try {
 				FileInputStream inputStream = new FileInputStream(theSrc);
 				FileOutputStream outputStream = new FileOutputStream(theDst);
@@ -424,7 +424,7 @@ public class MyBlackBox extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Log.e(GlobalVar.TAG, "File Copy End");
+			//Log.e(GlobalVar.TAG, "File Copy End");
 		}
 	}
 }
