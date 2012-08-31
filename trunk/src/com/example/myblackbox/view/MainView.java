@@ -58,7 +58,7 @@ public class MainView extends Activity {
 				setCurrentView(GlobalVar.CURRENT_CAMERA_VIEW);
 				Intent theCameraViewIntent = new Intent(MainView.this, CameraView.class);
 				startActivityForResult(theCameraViewIntent, GlobalVar.CURRENT_CAMERA_VIEW);
-
+ 
 				break;
 			case R.id.view_video:
 				setCurrentView(GlobalVar.CURRENT_VIDEO_VIEW);
@@ -68,7 +68,7 @@ public class MainView extends Activity {
 				break;
 			case R.id.view_obd:
 				setCurrentView(GlobalVar.CURRENT_OBD_VIEW);
-
+ 
 				Intent theObdViewIntent = new Intent(MainView.this,
 						OBD_View.class);
 				startActivityForResult(theObdViewIntent, GlobalVar.CURRENT_OBD_VIEW);
@@ -83,7 +83,6 @@ public class MainView extends Activity {
 			default:
 				break;
 			}
-
 		}
 	};
 
@@ -116,9 +115,9 @@ public class MainView extends Activity {
 
 	private void setCurrentView(int theView) {
 		if (GlobalVar.isDebug) {
-			Log.e(GlobalVar.TAG, "setCurrentView() : "
-					+ getCurrentViewName(theGlobalVar.getCurrentView()) + " -> "
-					+ getCurrentViewName(theView));
+			//Log.e(GlobalVar.TAG, "setCurrentView() : "
+//					+ getCurrentViewName(theGlobalVar.getCurrentView()) + " -> "
+//					+ getCurrentViewName(theView));
 		}
 		theGlobalVar.setCurrentView(theView);
 		
@@ -148,15 +147,15 @@ public class MainView extends Activity {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_BACK:
 			if (GlobalVar.isDebug)
-				Log.e(GlobalVar.TAG, "KeyCode Back");
+				//Log.e(GlobalVar.TAG, "KeyCode Back");
 			return false;
 		case KeyEvent.KEYCODE_VOLUME_UP:
 			if (GlobalVar.isDebug)
-				Log.e(GlobalVar.TAG, "KeyCode Valume Up");
+				//Log.e(GlobalVar.TAG, "KeyCode Valume Up");
 			return false;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			if (GlobalVar.isDebug)
-				Log.e(GlobalVar.TAG, "KeyCode Balume Down");
+				//Log.e(GlobalVar.TAG, "KeyCode Balume Down");
 			return false;
 		}
 
@@ -167,20 +166,20 @@ public class MainView extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-//		Log.e(GlobalVar.TAG,"onStart()");
+//		//Log.e(GlobalVar.TAG,"onStart()");
 	}
 
 	@Override
 	public void onRestart() {
 		super.onRestart();
-//		Log.e(GlobalVar.TAG,"onRestart()");
+//		//Log.e(GlobalVar.TAG,"onRestart()");
 
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-//		Log.e(GlobalVar.TAG,"onResume()");
+//		//Log.e(GlobalVar.TAG,"onResume()");
 		
 		if(getCurrentView() != GlobalVar.CURRENT_MAIN_VIEW) {
 			setCurrentView(GlobalVar.CURRENT_MAIN_VIEW);
@@ -190,14 +189,14 @@ public class MainView extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
-//		Log.e(GlobalVar.TAG,"onPause()");
+//		//Log.e(GlobalVar.TAG,"onPause()");
 
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-//		Log.e(GlobalVar.TAG,"onStop()");
+//		//Log.e(GlobalVar.TAG,"onStop()");
 	}
 
 	@Override

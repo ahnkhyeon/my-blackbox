@@ -52,7 +52,7 @@ public class BluetoothService {
 	 * Stop all threads
 	 */
 	public synchronized void stop() {
-		Log.e(GlobalVar.TAG, "stop");
+		//Log.e(GlobalVar.TAG, "stop");
 		if (mConnectThread != null) {
 			mConnectThread.cancel();
 			mConnectThread = null;
@@ -65,8 +65,9 @@ public class BluetoothService {
 	}
 
 	private void setState(int state) {
-		Log.e(GlobalVar.TAG, "setState() " + getStateName(mState) + " -> " + getStateName(state));
-		mState = state;
+		//Log.e(GlobalVar.TAG, "setState() " + getStateName(mState) + " -> "
+//				+ getStateName(state));
+//		mState = state;
 
 		// Give the new state to the Handler so the UI Activity can update
 		mHandler.obtainMessage(MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
@@ -112,7 +113,7 @@ public class BluetoothService {
 	}
 
 	public synchronized void connect(BluetoothDevice device) {
-		Log.e(GlobalVar.TAG, "connect to: " + device);
+		//Log.e(GlobalVar.TAG, "connect to: " + device);
 
 		// Start the thread to connect with the given device
 		mConnectThread = new ConnectThread(device);
@@ -123,7 +124,7 @@ public class BluetoothService {
 	public synchronized void connected(BluetoothSocket socket,
 			BluetoothDevice device) {
 
-		Log.e(GlobalVar.TAG, "Start Connected");
+		//Log.e(GlobalVar.TAG, "Start Connected");
 
 		// Cancel the thread that completed the connection
 		if (mConnectThread != null) {
@@ -184,7 +185,7 @@ public class BluetoothService {
 			try {
 				tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e) {
-				Log.e(GlobalVar.TAG, "create() failed", e);
+				//Log.e(GlobalVar.TAG, "create() failed", e);
 			}
 			mmSocket = tmp;
 
@@ -192,7 +193,7 @@ public class BluetoothService {
 		}
 
 		public void run() {
-			Log.e(GlobalVar.TAG, "BEGIN mConnectThread");
+			//Log.e(GlobalVar.TAG, "BEGIN mConnectThread");
 			setName("ConnectThread");
 
 			// Always cancel discovery because it will slow down a connection
@@ -209,9 +210,9 @@ public class BluetoothService {
 				try {
 					mmSocket.close();
 				} catch (IOException e2) {
-					Log.e(GlobalVar.TAG,
-							"unable to close() socket during connection failure",
-							e2);
+					//Log.e(GlobalVar.TAG,
+//							"unable to close() socket during connection failure",
+//							e2);
 				}
 				return;
 			}
@@ -229,7 +230,7 @@ public class BluetoothService {
 			try {
 				mmSocket.close();
 			} catch (IOException e) {
-				Log.e(GlobalVar.TAG, "close() of connect socket failed", e);
+				//Log.e(GlobalVar.TAG, "close() of connect socket failed", e);
 			}
 		}
 	}
@@ -244,7 +245,7 @@ public class BluetoothService {
 		private final OutputStream mmOutStream;
 
 		public ConnectedThread(BluetoothSocket socket) {
-			Log.e(GlobalVar.TAG, "create ConnectedThread");
+			//Log.e(GlobalVar.TAG, "create ConnectedThread");
 			mmSocket = socket;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
@@ -255,7 +256,7 @@ public class BluetoothService {
 				tmpOut = socket.getOutputStream();
 
 			} catch (IOException e) {
-				Log.e(GlobalVar.TAG, "temp sockets not created", e);
+				//Log.e(GlobalVar.TAG, "temp sockets not created", e);
 			}
 
 			mmInStream = tmpIn;
@@ -266,7 +267,7 @@ public class BluetoothService {
 		}
 
 		public void run() {
-			Log.e(GlobalVar.TAG, "BEGIN mConnectedThread");
+			//Log.e(GlobalVar.TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
 			int bytes;
 
@@ -281,7 +282,7 @@ public class BluetoothService {
 					mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
 							.sendToTarget();
 				} catch (IOException e) {
-					Log.e(GlobalVar.TAG, "disconnected", e);
+					//Log.e(GlobalVar.TAG, "disconnected", e);
 					connectionLost();
 					break;
 				}
@@ -297,14 +298,14 @@ public class BluetoothService {
 		 */
 		public void write(byte[] buffer) {
 			try {
-				// Log.e(GlobalVar.TAG,"Try Write");
+				// //Log.e(GlobalVar.TAG,"Try Write");
 				mmOutStream.write(buffer);
 
 				// Share the sent message back to the UI Activity
 				mHandler.obtainMessage(MESSAGE_WRITE, -1, -1, buffer)
 						.sendToTarget();
 			} catch (IOException e) {
-				Log.e(GlobalVar.TAG, "Exception during write", e);
+				//Log.e(GlobalVar.TAG, "Exception during write", e);
 			}
 		}
 
@@ -312,7 +313,7 @@ public class BluetoothService {
 			try {
 				mmSocket.close();
 			} catch (IOException e) {
-				Log.e(GlobalVar.TAG, "close() of connect socket failed", e);
+				//Log.e(GlobalVar.TAG, "close() of connect socket failed", e);
 			}
 		}
 	}

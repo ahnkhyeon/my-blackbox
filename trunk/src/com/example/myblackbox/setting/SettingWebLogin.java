@@ -75,7 +75,7 @@ public class SettingWebLogin extends Activity {
 					GlobalVar
 							.popupToast(SettingWebLogin.this, "패스워드를 입력해 주세요.");
 				} else {
-					Log.e(GlobalVar.TAG,"ID : "+theLoginID.getText() + " / Pass : "+theLoginPW.getText());
+					//Log.e(GlobalVar.TAG,"ID : "+theLoginID.getText() + " / Pass : "+theLoginPW.getText());
 					
 					 showDialog(GlobalVar.DIALOG_PROGRESS_ID);
 					 
@@ -91,7 +91,7 @@ public class SettingWebLogin extends Activity {
 //					try {
 //						String theResult = com.request(new URL(GlobalVar.theURL
 //								+ "loginForMobile.php"), "POST", params);
-//						Log.e(GlobalVar.TAG, theResult);
+//						//Log.e(GlobalVar.TAG, theResult);
 //					} catch (MalformedURLException e) {
 //						// TODO Auto-generated catch block
 //						e.printStackTrace();
@@ -154,7 +154,7 @@ public class SettingWebLogin extends Activity {
 			try {
 				String theResult = com.request(new URL(GlobalVar.WEB_URL
 						+ "loginForMobile.php"), "POST", params);
-				Log.e(GlobalVar.TAG, theResult);
+				//Log.e(GlobalVar.TAG, theResult);
 
 				XmlPullParserFactory parserCreator = XmlPullParserFactory
 						.newInstance();

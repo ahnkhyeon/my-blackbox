@@ -60,7 +60,7 @@ public class DataUploader extends Thread {
 	}
 
 	public void run() {
-		Log.e(GlobalVar.TAG, "UploaderThread Start");
+		//Log.e(GlobalVar.TAG, "UploaderThread Start");
 		Thread.currentThread().setName("UploaderThread");
 
 		while (!mFinished) {
@@ -108,7 +108,7 @@ public class DataUploader extends Thread {
 		boolean isSuccess = true;
 
 		try {
-			Log.e(GlobalVar.TAG,"Start Upload");
+			//Log.e(GlobalVar.TAG,"Start Upload");
 			HttpClient theClient = new DefaultHttpClient();
 
 			HttpPost thePost = new HttpPost(theUploadURL);
@@ -137,7 +137,7 @@ public class DataUploader extends Thread {
 
 			String theResponseString = EntityUtils.toString(theResEntity);
 
-			Log.e(GlobalVar.TAG,"Uploaded : " + theResponseString);
+			//Log.e(GlobalVar.TAG,"Uploaded : " + theResponseString);
 			
 			
 			// TODO 에러 발생시
@@ -176,6 +176,15 @@ public class DataUploader extends Thread {
 
 		Element theGeoInfo = doc.createElement("GeoInfo");
 		doc.appendChild(theGeoInfo);
+		
+		
+		
+		if(geoInfo.isEmpty()) {
+			GeoInfo theEmptyGeo = new GeoInfo(-1, -1, "-1");
+			
+			geoInfo.add(theEmptyGeo);
+		}
+		
 
 		for (GeoInfo geo_Info : geoInfo) {
 
@@ -222,6 +231,24 @@ public class DataUploader extends Thread {
 
 		Element theObdInfo = doc.createElement("OBD_Info");
 		doc.appendChild(theObdInfo);
+		
+		
+		
+		
+		if(obdInfo.isEmpty()) {
+			OBD_Info theEmptyOBD = new OBD_Info();
+			theEmptyOBD.setObdAirFlow("-1");
+			theEmptyOBD.setObdDate("-1");
+			theEmptyOBD.setObdEngineRpm("-1");
+			theEmptyOBD.setObdEngineTemp("-1");
+			theEmptyOBD.setObdSpeed("-1");
+			theEmptyOBD.setObdThrottlePos("-1");
+			
+			obdInfo.add(theEmptyOBD);
+		}
+		
+		
+		
 
 		for (OBD_Info obd_Info : obdInfo) {
 
@@ -258,7 +285,6 @@ public class DataUploader extends Thread {
 			Element theSpeed = doc.createElement("Speed");
 			theSpeed.setTextContent(obd_Info.getObdSpeed());
 			theObd.appendChild(theSpeed);
-
 		}
 
 		// create Transformer object
@@ -286,7 +312,7 @@ public class DataUploader extends Thread {
  * public void run() {
  * 
  * UploadData theTempData; while (!theTempDataSet.isEmpty() || getShakeState()
- * == true) { Log.e(GlobalVar.TAG, "UploadThread"); if
+ * == true) { //Log.e(GlobalVar.TAG, "UploadThread"); if
  * (theTempDataSet.isEmpty()) { try { Thread.sleep(2000); } catch
  * (InterruptedException e) { // TODO Auto-generated catch block
  * e.printStackTrace(); } continue; }
@@ -318,7 +344,7 @@ public class DataUploader extends Thread {
  * 
  * String theResponseString = EntityUtils .toString(theResEntity);
  * 
- * Log.e(GlobalVar.TAG, "Response : " + theResponseString); } catch
+ * //Log.e(GlobalVar.TAG, "Response : " + theResponseString); } catch
  * (UnsupportedEncodingException e) { // TODO Auto-generated catch block
  * e.printStackTrace(); } catch (ClientProtocolException e) { // TODO
  * Auto-generated catch block e.printStackTrace(); } catch (IOException e) { //
