@@ -1,7 +1,9 @@
 package com.example.myblackbox.etc;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -17,7 +19,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -26,13 +27,16 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 public class DataUploader extends Thread {
@@ -49,8 +53,10 @@ public class DataUploader extends Thread {
 	private boolean mPaused;
 	private boolean mFinished;
 
+	private Handler mHandler;
+
 	public DataUploader(ArrayList<UploadData> thePool, String url, String user,
-			String identity) {
+			String identity, Handler handler) {
 		// TODO Auto-generated constructor stub
 
 		theUser = user;
@@ -62,6 +68,9 @@ public class DataUploader extends Thread {
 		mPauseLock = new Object();
 		mPaused = false;
 		mFinished = false;
+
+		mHandler = handler;
+
 	}
 
 	public void run() {
@@ -75,7 +84,8 @@ public class DataUploader extends Thread {
 				onPause();
 			} else {
 				if (Uploader(theUploadPool.get(0))) {
-					Log.e(GlobalVar.TAG,"Upload Itmes : " + theUploadPool.size());
+					Log.e(GlobalVar.TAG,
+							"Upload Itmes : " + theUploadPool.size());
 					theUploadPool.remove(0);
 				}
 			}
@@ -112,28 +122,31 @@ public class DataUploader extends Thread {
 
 	private boolean Uploader(UploadData theData) {
 		boolean isSuccess = true;
+		String errString = "";
 
 		try {
-			 Log.e(GlobalVar.TAG,"Start Upload");
+			Log.e(GlobalVar.TAG, "Start Upload");
 			HttpClient theClient = new DefaultHttpClient();
 
 			HttpPost thePost = new HttpPost(theUploadURL);
 
 			MultipartEntity theEntity = new MultipartEntity();
 
-			
 			// Time Out setting
-			theClient.getParams().setParameter("http.protocol.expect-continue", false);
-			theClient.getParams().setParameter("http.connection.timeout", UPLOAD_TIME_OUT * 1000);
-			theClient.getParams().setParameter("http.socket.timeout", UPLOAD_TIME_OUT * 1000);
-			
-//			HttpParams theHttpParams = theClient.getParams();
-//			theHttpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
-//					HttpVersion.HTTP_1_1);
-//			HttpConnectionParams.setConnectionTimeout(theHttpParams,
-//					UPLOAD_TIME_OUT * 1000);
-//			HttpConnectionParams.setSoTimeout(theHttpParams,
-//					UPLOAD_TIME_OUT * 1000);
+			theClient.getParams().setParameter("http.protocol.expect-continue",
+					false);
+			theClient.getParams().setParameter("http.connection.timeout",
+					UPLOAD_TIME_OUT * 1000);
+			theClient.getParams().setParameter("http.socket.timeout",
+					UPLOAD_TIME_OUT * 1000);
+
+			// HttpParams theHttpParams = theClient.getParams();
+			// theHttpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
+			// HttpVersion.HTTP_1_1);
+			// HttpConnectionParams.setConnectionTimeout(theHttpParams,
+			// UPLOAD_TIME_OUT * 1000);
+			// HttpConnectionParams.setSoTimeout(theHttpParams,
+			// UPLOAD_TIME_OUT * 1000);
 
 			File theViedoFile = new File(theData.getVideoPath());
 
@@ -157,40 +170,70 @@ public class DataUploader extends Thread {
 
 			String theResponseString = EntityUtils.toString(theResEntity);
 			
-			
+			errString = chkError(theResponseString);
+
 			Log.e(GlobalVar.TAG, "Uploaded : " + theResponseString);
 
 			// TODO 에러 발생시
 			// isSuccess = false;
-			
-			
+
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e(GlobalVar.TAG,"Upload Exception 1");
+			// Log.e(GlobalVar.TAG,"Upload Exception 1");
+			isSuccess = false;
+
 		} catch (TransformerFactoryConfigurationError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e(GlobalVar.TAG,"Upload Exception 2");
+			// Log.e(GlobalVar.TAG,"Upload Exception 2");
+			isSuccess = false;
+
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e(GlobalVar.TAG,"Upload Exception 3");
+			// Log.e(GlobalVar.TAG,"Upload Exception 3");
+			isSuccess = false;
+
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e(GlobalVar.TAG,"Upload Exception 4");
+			// Log.e(GlobalVar.TAG,"Upload Exception 4");
+			isSuccess = false;
+
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e(GlobalVar.TAG,"Upload Exception 5");
+			// Log.e(GlobalVar.TAG,"Upload Exception 5");
+			isSuccess = false;
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e(GlobalVar.TAG,"Upload Exception 6"+e);
+			// Log.e(GlobalVar.TAG,"Upload Exception 6"+e);
+			isSuccess = false;
 		}
+		
+		if(errString.length() != 0) {
+			Message msg = mHandler
+					.obtainMessage(BluetoothService.MESSAGE_TOAST);
+			Bundle bundle = new Bundle();
+			bundle.putString(BluetoothService.TOAST, errString);
+			msg.setData(bundle);
+			mHandler.sendMessage(msg);
+		} else if (isSuccess == false) {
 
-		return isSuccess;
+			Message msg = mHandler
+					.obtainMessage(BluetoothService.MESSAGE_TOAST);
+			Bundle bundle = new Bundle();
+			bundle.putString(BluetoothService.TOAST, "업로드에 오류가 발생하였습니다.");
+			msg.setData(bundle);
+			mHandler.sendMessage(msg);
+		}
+		
+		errString="";
+
+		return true;
 	}
 
 	// Geo 정보를 Xml로 만들어주는 매서드
@@ -313,6 +356,51 @@ public class DataUploader extends Thread {
 		transformer.transform(new DOMSource(doc), result);
 
 		return writer.toString();
+
+	}
+
+	private String chkError(String theXml) {
+
+		try {
+			XmlPullParserFactory parserCreator = XmlPullParserFactory
+					.newInstance();
+			XmlPullParser parser = parserCreator.newPullParser();
+
+			InputStream inputStream = new ByteArrayInputStream(
+					theXml.getBytes("UTF-8"));
+
+			parser.setInput(inputStream, null);
+
+			int parserEvent = parser.getEventType();
+			boolean isError = false;
+			while (parserEvent != XmlPullParser.END_DOCUMENT) {
+				switch (parserEvent) {
+
+				case XmlPullParser.TEXT:
+					if(isError) {
+						return parser.getText();
+					}
+
+					break;
+				case XmlPullParser.END_TAG:
+
+					break;
+				case XmlPullParser.START_TAG:
+					if(parser.getName().equals("error")) {
+						isError = true;
+					}
+					break;
+				}
+				parserEvent = parser.next();
+			}
+
+		} catch (XmlPullParserException e) {
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 
 	}
 

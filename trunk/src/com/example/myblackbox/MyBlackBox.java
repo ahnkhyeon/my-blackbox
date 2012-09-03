@@ -89,7 +89,8 @@ public class MyBlackBox extends Activity {
 		theDataUploader = new DataUploader(theUploadPool, GlobalVar.WEB_URL
 				+ "uploadVideo.php",
 				theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID),
-				theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY));
+				theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY),
+				mHandler);
 		theDataUploader.start();
 		theDataUploader.onPause();
 
