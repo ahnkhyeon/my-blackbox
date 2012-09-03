@@ -30,7 +30,11 @@ import com.example.myblackbox.etc.DataUploader;
 import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
 import com.example.myblackbox.etc.UploadData;
+import com.example.myblackbox.view.CameraView;
 import com.example.myblackbox.view.MainView;
+import com.example.myblackbox.view.OBD_View;
+import com.example.myblackbox.view.SettingView;
+import com.example.myblackbox.view.VideoView;
 
 public class MyBlackBox extends Activity {
 
@@ -59,7 +63,7 @@ public class MyBlackBox extends Activity {
 		theBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 		if (theBluetoothAdapter == null) {
-			GlobalVar.popupToast(MyBlackBox.this, "Bluetooth is not available");
+			GlobalVar.popupToast(MyBlackBox.this, "블루투스를 사용할 수 없습니다.");
 
 			new Handler().postDelayed(new Runnable() {
 
@@ -109,10 +113,9 @@ public class MyBlackBox extends Activity {
 				}, 500);
 			} else {
 				// User did not enable Bluetooth or an error occured
-				GlobalVar.popupToast(MyBlackBox.this, "블루투스를 실행해 주세요.");
+				GlobalVar.popupToast(MyBlackBox.this, "블루투스를 연결해 주세요.");
 				startActivity(new Intent(MyBlackBox.this, MainView.class));
 			}
-
 		}
 	}
 
@@ -145,6 +148,9 @@ public class MyBlackBox extends Activity {
 			Message theMsg;
 			switch (msg.what) {
 			case BluetoothService.MESSAGE_STATE_CHANGE:
+
+				theGlobalVar.setBlueState(msg.arg1);
+
 				switch (msg.arg1) {
 				case BluetoothService.STATE_CONNECTED:
 					GlobalVar.popupToast(MyBlackBox.this,
@@ -161,8 +167,6 @@ public class MyBlackBox extends Activity {
 					break;
 				case BluetoothService.STATE_LISTEN:
 				case BluetoothService.STATE_NONE:
-					GlobalVar.popupToast(MyBlackBox.this,
-							"OBD Server와 연결이 끊겼습니다.");
 
 					// setState(BLUE_OBD_NONE);
 					break;
@@ -174,7 +178,7 @@ public class MyBlackBox extends Activity {
 				// construct a string from the buffer
 				String writeMessage = new String(writeBuf);
 				if (GlobalVar.isDebug) {
-					//Log.e(GlobalVar.TAG, "Send : " + writeMessage);
+					// Log.e(GlobalVar.TAG, "Send : " + writeMessage);
 				}
 				// mConversationArrayAdapter.add("Me:  " + writeMessage);
 				break;
@@ -207,6 +211,8 @@ public class MyBlackBox extends Activity {
 				case GlobalVar.CURRENT_CAMERA_VIEW:
 					theObdInfo = new OBD_Info();
 
+					// if (theSplit.length > 8) {
+
 					theObdInfo.setObdEngineRpm(theSplit[2]);
 					theObdInfo.setObdEngineTemp(theSplit[3]);
 					theObdInfo.setObdAirFlow(theSplit[4]);
@@ -217,37 +223,14 @@ public class MyBlackBox extends Activity {
 					theMsg = theGlobalVar.theCameraHandler.obtainMessage(
 							GlobalVar.OBD_INFO_FROM_CAMERA, theObdInfo);
 					theGlobalVar.theCameraHandler.sendMessage(theMsg);
+					// } else {
+					// Log.e(GlobalVar.TAG, "Obd : "+readMessage);
+					// }
 					break;
 
 				default:
 					break;
 				}
-
-				/*
-				 * switch (Integer.parseInt(theSplit[0])) { case
-				 * BLUE_ACK_OBD_INFO: if (getState() == BLUE_REQ_OBD_INFO) {
-				 * setState(BLUE_SEND_OBD_INFO); if (GlobalVar.isDebug)
-				 * //Log.e(GlobalVar.TAG, "Send Ack");
-				 * 
-				 * }
-				 * 
-				 * break; case BLUE_REQ_CON_FIN: // 종료 요청 보내기
-				 * 
-				 * break; case BLUE_ACK_OBD_FIN: // 연결 종료
-				 * 
-				 * break; case BLUE_SEND_OBD_INFO: if (getState() ==
-				 * BLUE_SEND_OBD_INFO) { if (blueSeqNo <
-				 * Long.parseLong(theSplit[1])) {
-				 * 
-				 * theGlobalVar.getObdInfo().addObdData(theSplit[7],
-				 * theSplit[2], theSplit[3], theSplit[4], theSplit[6],
-				 * theSplit[5]); } }
-				 * 
-				 * // 데이터 저장하는 부분 break;
-				 * 
-				 * default: break; }
-				 */
-
 				break;
 			case BluetoothService.MESSAGE_DEVICE_NAME:
 
@@ -265,12 +248,12 @@ public class MyBlackBox extends Activity {
 		@Override
 		public void handleMessage(Message msg) {
 			String theSendData;
+
 			switch (msg.what) {
 			case GlobalVar.BLUE_REQ_OBD_INFO:
 
 				theSendData = "" + GlobalVar.BLUE_REQ_OBD_INFO + "/" + msg.arg1;
 				theBluetoothService.write(theSendData.getBytes());
-
 				break;
 			case GlobalVar.BLUE_SEND_OBD_INFO:
 
@@ -281,7 +264,6 @@ public class MyBlackBox extends Activity {
 
 				break;
 			case GlobalVar.BLUE_CONNECT:
-				//Log.e(GlobalVar.TAG, "ASDF");
 				connectBluetooth(false);
 				break;
 			case GlobalVar.BLUE_DISCONNECT:
@@ -308,7 +290,8 @@ public class MyBlackBox extends Activity {
 					// Upload Data 추가
 					theUploadPool.add(theData);
 
-					//Log.e(GlobalVar.TAG, "Upload Data : " + theData.getDate());
+					// Log.e(GlobalVar.TAG, "Upload Data : " +
+					// theData.getDate());
 
 					// Event 디렉토리로 복사
 					DataFileCopy theFileCopy = new DataFileCopy(
@@ -316,8 +299,15 @@ public class MyBlackBox extends Activity {
 									+ theData.getDate() + ".mp4", theData);
 					theFileCopy.start();
 
-					// Uload 시작
-					theDataUploader.onResume();
+					// Upload 시작
+					if (theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID)
+							.length() == 0) {
+						GlobalVar.popupToast(MyBlackBox.this,
+								"Web 로그인 정보가 없습니다.");
+					} else {
+
+						theDataUploader.onResume();
+					}
 
 				}
 				break;
@@ -326,6 +316,7 @@ public class MyBlackBox extends Activity {
 	};
 
 	public void confirmBlueConnect(Context context) {
+		Log.e(GlobalVar.TAG, "confirmBlueConnect");
 		AlertDialog.Builder alert_confirm = new AlertDialog.Builder(context);
 		alert_confirm.setMessage("블루투스 연결이 해제되었습니다.\n다시 연결하시겠습니까?")
 				.setCancelable(false)
@@ -389,7 +380,7 @@ public class MyBlackBox extends Activity {
 		public void run() {
 			// TODO Auto-generated method stub
 			super.run();
-			//Log.e(GlobalVar.TAG, "File Copy Start");
+			// Log.e(GlobalVar.TAG, "File Copy Start");
 			try {
 				FileInputStream inputStream = new FileInputStream(theSrc);
 				FileOutputStream outputStream = new FileOutputStream(theDst);
@@ -424,7 +415,7 @@ public class MyBlackBox extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//Log.e(GlobalVar.TAG, "File Copy End");
+			// Log.e(GlobalVar.TAG, "File Copy End");
 		}
 	}
 }

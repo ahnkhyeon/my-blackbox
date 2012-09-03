@@ -59,6 +59,7 @@ public class SettingWebLogin extends Activity {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				setResult(Activity.RESULT_CANCELED);
+				finish();
 
 			}
 		});

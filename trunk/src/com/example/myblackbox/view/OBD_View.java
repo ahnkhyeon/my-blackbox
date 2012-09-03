@@ -1,10 +1,13 @@
 package com.example.myblackbox.view;
 
 import com.example.myblackbox.R;
+import com.example.myblackbox.etc.BluetoothService;
 import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +43,8 @@ public class OBD_View extends Activity {
 			theGlobalVar = (GlobalVar) getApplicationContext();
 		}
 		
+		CheckBluetooth();
+	
 		theGlobalVar.theObdHandler = mHandler;
 		
 		Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(GlobalVar.BLUE_REQ_OBD_INFO, 1, 0);
@@ -98,6 +103,29 @@ public class OBD_View extends Activity {
 			}
 		}
 	};
+	
+	
+	
+	private void CheckBluetooth() {
+		String theBlueName = theGlobalVar.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
+		
+		
+		
+		
+		
+		
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+		
+		if(!mBluetoothAdapter.isEnabled()) {
+			GlobalVar.popupToast(OBD_View.this, "블루투스가 꺼져있습니다.");
+		} else if(theBlueName.length() == 0) {
+			GlobalVar.popupToast(OBD_View.this, "블루투스 정보를 입력해주세요.");
+		} else if(theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
+			GlobalVar.popupToast(OBD_View.this, "OBD Server에 연결되어 있지 않습니다.");
+		} 
+	}
+	
 
 	/** Custom Hardware Button */
 	@Override

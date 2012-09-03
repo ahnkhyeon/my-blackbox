@@ -71,7 +71,7 @@ public class GlobalVar extends Application {
 	public static final String EVENT_DATA_PATH = "/sdcard/MyBlackBox/Event/Data";
 
 	// Web Address
-	public static final String WEB_URL = "http://192.168.0.121/MyCarServer/";
+	public static final String WEB_URL = "http://192.168.200.182/MyCarServer/";
 
 	// Shared Preferences
 	public static final String SHARED_BLUE_NAME = "BlueName";
@@ -79,8 +79,7 @@ public class GlobalVar extends Application {
 	public static final String SHARED_LOGIN_ID = "LoginID";
 	public static final String SHARED_LOGIN_IDENTITY = "LoginIdentity";
 	
-//	public static final String SHARED_CAMERA_WIDTH = "CameraWidth";
-//	public static final String SHARED_CAMERA_HEIGHT = "CameraHeight";
+
 	public static final String SHARED_CAMERA_QUAILTY = "CameraQuailty";
 	public static final String SHARED_CAMERA_STORAGE_SIZE = "VideoStorageSize";
 	public static final String SHARED_CAMERA_RECORD_TIME = "RecordSize";
@@ -88,6 +87,17 @@ public class GlobalVar extends Application {
 	// Upload Data
 	public static final int ADD_UPLOAD_DATA = 1;
 	
+	
+	// Bluetooth Status
+	private int BLUE_TOOTH_STATE;
+	
+	public void setBlueState(int state) {
+		BLUE_TOOTH_STATE = state;
+	}
+	
+	public synchronized int getBlueState() {
+		return BLUE_TOOTH_STATE;
+	}
 
 
 	public static void popupToast(Context theCntext, String inString) {
