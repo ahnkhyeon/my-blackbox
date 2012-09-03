@@ -205,7 +205,7 @@ public class SettingView extends PreferenceActivity {
 
 				if (mBluetoothAdapter == null) {
 					GlobalVar.popupToast(SettingView.this,
-							"Bluetooth is not available");
+							"블루투스를 사용할 수 없습니다.");
 				} else if (!mBluetoothAdapter.isEnabled()) {
 					Intent enableBlueIntent = new Intent(
 							BluetoothAdapter.ACTION_REQUEST_ENABLE);

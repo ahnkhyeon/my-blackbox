@@ -17,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -25,6 +26,9 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,9 +37,11 @@ import android.util.Log;
 
 public class DataUploader extends Thread {
 
+	private final static int UPLOAD_TIME_OUT = 10;
+
 	private String theUser;
 	private String theIdentity;
-	
+
 	private ArrayList<UploadData> theUploadPool;
 	private String theUploadURL;
 
@@ -43,14 +49,13 @@ public class DataUploader extends Thread {
 	private boolean mPaused;
 	private boolean mFinished;
 
-	public DataUploader(ArrayList<UploadData> thePool, String url, String user, String identity) {
+	public DataUploader(ArrayList<UploadData> thePool, String url, String user,
+			String identity) {
 		// TODO Auto-generated constructor stub
-		
-		
+
 		theUser = user;
 		theIdentity = identity;
-		
-		
+
 		theUploadPool = thePool;
 		theUploadURL = url;
 
@@ -60,20 +65,21 @@ public class DataUploader extends Thread {
 	}
 
 	public void run() {
-		//Log.e(GlobalVar.TAG, "UploaderThread Start");
+		// Log.e(GlobalVar.TAG, "UploaderThread Start");
 		Thread.currentThread().setName("UploaderThread");
 
 		while (!mFinished) {
 			// Do something you need!!
-			
-			if(theUploadPool.isEmpty()) {
+
+			if (theUploadPool.isEmpty()) {
 				onPause();
 			} else {
-				if(Uploader(theUploadPool.get(0))) {
+				if (Uploader(theUploadPool.get(0))) {
+					Log.e(GlobalVar.TAG,"Upload Itmes : " + theUploadPool.size());
 					theUploadPool.remove(0);
-				}	
+				}
 			}
-			
+
 			synchronized (mPauseLock) {
 				while (mPaused) {
 					try {
@@ -108,13 +114,27 @@ public class DataUploader extends Thread {
 		boolean isSuccess = true;
 
 		try {
-			//Log.e(GlobalVar.TAG,"Start Upload");
+			 Log.e(GlobalVar.TAG,"Start Upload");
 			HttpClient theClient = new DefaultHttpClient();
 
 			HttpPost thePost = new HttpPost(theUploadURL);
 
 			MultipartEntity theEntity = new MultipartEntity();
- 
+
+			
+			// Time Out setting
+			theClient.getParams().setParameter("http.protocol.expect-continue", false);
+			theClient.getParams().setParameter("http.connection.timeout", UPLOAD_TIME_OUT * 1000);
+			theClient.getParams().setParameter("http.socket.timeout", UPLOAD_TIME_OUT * 1000);
+			
+//			HttpParams theHttpParams = theClient.getParams();
+//			theHttpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
+//					HttpVersion.HTTP_1_1);
+//			HttpConnectionParams.setConnectionTimeout(theHttpParams,
+//					UPLOAD_TIME_OUT * 1000);
+//			HttpConnectionParams.setSoTimeout(theHttpParams,
+//					UPLOAD_TIME_OUT * 1000);
+
 			File theViedoFile = new File(theData.getVideoPath());
 
 			ContentBody theFile = new FileBody(theViedoFile);
@@ -125,7 +145,7 @@ public class DataUploader extends Thread {
 					new StringBody(CreateXmlOBD(theData.getObdInfoSet())));
 			theEntity.addPart("GeoInfo",
 					new StringBody(CreateXmlGeo(theData.getGeoInfoSet())));
-			
+
 			theEntity.addPart("user", new StringBody(theUser));
 			theEntity.addPart("identity", new StringBody(theIdentity));
 
@@ -136,31 +156,38 @@ public class DataUploader extends Thread {
 			HttpEntity theResEntity = theResponse.getEntity();
 
 			String theResponseString = EntityUtils.toString(theResEntity);
+			
+			
+			Log.e(GlobalVar.TAG, "Uploaded : " + theResponseString);
 
-			//Log.e(GlobalVar.TAG,"Uploaded : " + theResponseString);
-			
-			
 			// TODO 에러 발생시
 			// isSuccess = false;
-
+			
+			
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.e(GlobalVar.TAG,"Upload Exception 1");
 		} catch (TransformerFactoryConfigurationError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.e(GlobalVar.TAG,"Upload Exception 2");
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.e(GlobalVar.TAG,"Upload Exception 3");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.e(GlobalVar.TAG,"Upload Exception 4");
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.e(GlobalVar.TAG,"Upload Exception 5");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.e(GlobalVar.TAG,"Upload Exception 6"+e);
 		}
 
 		return isSuccess;
@@ -176,15 +203,12 @@ public class DataUploader extends Thread {
 
 		Element theGeoInfo = doc.createElement("GeoInfo");
 		doc.appendChild(theGeoInfo);
-		
-		
-		
-		if(geoInfo.isEmpty()) {
+
+		if (geoInfo.isEmpty()) {
 			GeoInfo theEmptyGeo = new GeoInfo(-1, -1, "-1");
-			
+
 			geoInfo.add(theEmptyGeo);
 		}
-		
 
 		for (GeoInfo geo_Info : geoInfo) {
 
@@ -231,11 +255,8 @@ public class DataUploader extends Thread {
 
 		Element theObdInfo = doc.createElement("OBD_Info");
 		doc.appendChild(theObdInfo);
-		
-		
-		
-		
-		if(obdInfo.isEmpty()) {
+
+		if (obdInfo.isEmpty()) {
 			OBD_Info theEmptyOBD = new OBD_Info();
 			theEmptyOBD.setObdAirFlow("-1");
 			theEmptyOBD.setObdDate("-1");
@@ -243,12 +264,9 @@ public class DataUploader extends Thread {
 			theEmptyOBD.setObdEngineTemp("-1");
 			theEmptyOBD.setObdSpeed("-1");
 			theEmptyOBD.setObdThrottlePos("-1");
-			
+
 			obdInfo.add(theEmptyOBD);
 		}
-		
-		
-		
 
 		for (OBD_Info obd_Info : obdInfo) {
 
@@ -297,9 +315,6 @@ public class DataUploader extends Thread {
 		return writer.toString();
 
 	}
-	
-	
-	
 
 }
 

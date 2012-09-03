@@ -67,7 +67,7 @@ public class BluetoothService {
 	private void setState(int state) {
 		//Log.e(GlobalVar.TAG, "setState() " + getStateName(mState) + " -> "
 //				+ getStateName(state));
-//		mState = state;
+		mState = state;
 
 		// Give the new state to the Handler so the UI Activity can update
 		mHandler.obtainMessage(MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
@@ -153,7 +153,7 @@ public class BluetoothService {
 		// Send a failure message back to the Activity
 		Message msg = mHandler.obtainMessage(MESSAGE_TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString(TOAST, "Unable to connect device");
+		bundle.putString(TOAST, "OBD Server와 연결할 수 없습니다");
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
 	}
@@ -167,7 +167,7 @@ public class BluetoothService {
 		// Send a failure message back to the Activity
 		Message msg = mHandler.obtainMessage(MESSAGE_TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString(TOAST, "Device connection was lost");
+		bundle.putString(TOAST, "OBD Server와의 연결이 끊겼습니다.");
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
 	}
@@ -298,7 +298,7 @@ public class BluetoothService {
 		 */
 		public void write(byte[] buffer) {
 			try {
-				// //Log.e(GlobalVar.TAG,"Try Write");
+//				 Log.e(GlobalVar.TAG,"Try Write");
 				mmOutStream.write(buffer);
 
 				// Share the sent message back to the UI Activity

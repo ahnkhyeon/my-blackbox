@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +30,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -62,6 +65,7 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 import com.example.myblackbox.R;
+import com.example.myblackbox.etc.BluetoothService;
 import com.example.myblackbox.etc.GeoInfo;
 import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
@@ -132,6 +136,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		theGlobalVar = (GlobalVar) getApplicationContext();
 
 		theGlobalVar.theCameraHandler = mHandler;
+		
+		CheckBluetooth();
 
 		/** Camera Set Info */
 
@@ -143,7 +149,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		//Log.e(GlobalVar.TAG, "StorageSiae : " + StorageSize);
 
 		RecordTime = Integer.parseInt(theGlobalVar
-				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 60000;
+				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 20000;   // 60000;
 
 		// Upload Data Setting
 		theUploadDataSet = new ArrayList<UploadData>(10);
@@ -451,9 +457,9 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 		if (GlobalVar.isDebug) {
 			if (shake) {
-				//Log.e(GlobalVar.TAG, "Shake() ON");
+				Log.e(GlobalVar.TAG, "Shake() ON");
 			} else {
-				//Log.e(GlobalVar.TAG, "Shake() OFF");
+				Log.e(GlobalVar.TAG, "Shake() OFF");
 				addSendPool(null);
 
 			}
@@ -681,16 +687,18 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			}
 		}
 
+		Collections.sort(video);
+		
 		if (!video.isEmpty()) {
 
 			// 리스트의 가장 마지막 비디오를 삭제
-			targetFile = new File(MediaPath + video.get(video.size() - 1));
+			targetFile = new File(MediaPath + video.get(0));
 
 			// 타겟파일이 지정 됬을 경우에 파일을 삭제
 			if (targetFile != null) {
 				targetFile.delete();
-				//Log.e(GlobalVar.TAG, "파일을 삭제하셨습니다 : " + targetFile.getPath()
-//						+ "/" + targetFile.getName());
+				Log.e(GlobalVar.TAG, "파일을 삭제하셨습니다 : " + targetFile.getPath()
+						+ "/" + targetFile.getName());
 			}
 		}
 	}
@@ -730,6 +738,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		public boolean accept(File dir, String name) {
 			return (name.endsWith(".mp4")); // 확장자가 mp4인지 확인
 		}
+		
 	}
 
 	/*****************************************************************
@@ -901,6 +910,24 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 		return geoString.toString();
 	}
+	private void CheckBluetooth() {
+		String theBlueName = theGlobalVar.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
+		
+		
+		
+		
+		
+		
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+		
+		if(!mBluetoothAdapter.isEnabled()) {
+			GlobalVar.popupToast(CameraView.this, "블루투스가 꺼져있습니다.");
+		} else if(theBlueName.length() == 0) {
+			GlobalVar.popupToast(CameraView.this, "블루투스 정보를 입력해주세요.");
+		} else if(theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
+			GlobalVar.popupToast(CameraView.this, "OBD Server에 연결되어 있지 않습니다.");
+		} 
+	}
 	
 }
