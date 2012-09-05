@@ -160,14 +160,26 @@ public class MyBlackBox extends Activity {
 					// String theSendString = "" + BLUE_REQ_OBD_INFO;
 					// setState(BLUE_REQ_OBD_INFO);
 					// mBluetoothService.write(theSendString.getBytes());
+					if (theGlobalVar.theMainHandler != null) {
+						theGlobalVar.theMainHandler
+								.sendEmptyMessage(BluetoothService.STATE_CONNECTED);
+					}
 
 					break;
 				case BluetoothService.STATE_CONNECTING:
 					GlobalVar
 							.popupToast(MyBlackBox.this, "OBD Server와 연결중입니다.");
+					if (theGlobalVar.theMainHandler != null) {
+						theGlobalVar.theMainHandler
+								.sendEmptyMessage(BluetoothService.STATE_CONNECTING);
+					}
 					break;
 				case BluetoothService.STATE_LISTEN:
 				case BluetoothService.STATE_NONE:
+					if (theGlobalVar.theMainHandler != null) {
+						theGlobalVar.theMainHandler
+								.sendEmptyMessage(BluetoothService.STATE_NONE);
+					}
 
 					// setState(BLUE_OBD_NONE);
 					break;
@@ -306,6 +318,13 @@ public class MyBlackBox extends Activity {
 						GlobalVar.popupToast(MyBlackBox.this,
 								"Web 로그인 정보가 없습니다.");
 					} else {
+						// 사용자 정보 적용
+						theDataUploader
+								.setUserInfo(
+										theGlobalVar
+												.getSharedPref(GlobalVar.SHARED_LOGIN_ID),
+										theGlobalVar
+												.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY));
 
 						theDataUploader.onResume();
 					}

@@ -28,7 +28,7 @@ public class GlobalVar extends Application {
 
 	// Web login
 
-	public static final int DIALOG_PROGRESS_ID = 1;
+	
 
 	public static final int LOGIN_FLAG_ERROR = 0;
 	public static final int LOGIN_FLAG_OK = 1;
@@ -49,6 +49,7 @@ public class GlobalVar extends Application {
 	public Handler theObdHandler;
 	public Handler theCameraHandler;
 	public Handler theUploadHandler;
+	public Handler theMainHandler;
 
 	public static final int OBD_INFO_FROM_OBD = 1;
 	public static final int OBD_INFO_FROM_CAMERA = 2;
@@ -71,7 +72,7 @@ public class GlobalVar extends Application {
 	public static final String EVENT_DATA_PATH = "/sdcard/MyBlackBox/Event/Data";
 
 	// Web Address
-	public static final String WEB_URL = "http://192.168.200.182/MyCarServer/";
+	public static final String WEB_URL = "http://192.168.0.13/MyCarServer/";
 
 	// Shared Preferences
 	public static final String SHARED_BLUE_NAME = "BlueName";
@@ -86,6 +87,13 @@ public class GlobalVar extends Application {
 	
 	// Upload Data
 	public static final int ADD_UPLOAD_DATA = 1;
+	
+	
+	// Dialog
+	public static final int DIALOG_PROGRESS_ID = 1;
+	public static final int DIALOG_CAMERA_START = 2;
+	
+	
 	
 	
 	// Bluetooth Status

@@ -1,8 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical" >
-    
 
-</LinearLayout>
+    <FrameLayout
+        android:id="@+id/videoLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
+
+    <com.google.android.maps.MapView
+        android:id="@+id/Pmapview"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_alignParentRight="true"
+        android:apiKey="0KK_cMpXHGI38nXyPCli7NJZ-IpmzRWAgy-VmmA"
+        android:clickable="true"
+        />
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="@id/videoLayout"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+        android:visibility="visible" />
+     
+     <ListView
+        android:id="@+id/EventList"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="@id/videoLayout"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+        android:visibility="visible" />
+
+    <RelativeLayout
+        android:id="@+id/menuBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true" >
+
+        <Button
+            android:id="@+id/playStopBtn"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_weight="1"
+            android:text="정지"
+            android:visibility="visible"
+            android:width="100dp" />
+        
+         <Button
+            android:id="@+id/Mapon"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/playStopBtn"
+            android:layout_weight="1"
+            android:text="MAP"
+            android:visibility="visible"
+            android:width="100dp" />
+         
+         <Button
+            android:id="@+id/EventBtn"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/Mapon"
+            android:layout_weight="1"
+            android:text="Event"
+            android:visibility="visible"
+            android:width="100dp" />
+
+        <SeekBar
+            android:id="@+id/Seekbar"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/EventBtn"
+            android:layout_weight="1"
+            android:visibility="visible" />
+    </RelativeLayout>
+</RelativeLayout>

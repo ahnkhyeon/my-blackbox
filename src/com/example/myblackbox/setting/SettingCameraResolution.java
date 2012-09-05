@@ -62,7 +62,7 @@ public class SettingCameraResolution extends Activity {
 
 				Intent intent = new Intent();
 				intent.putExtra(GlobalVar.CAMERA_RESOLUTION,
-						RESOLUTION[position]);
+						RESOLUTION[position]+"");
 				setResult(Activity.RESULT_OK, intent);
 				finish();
 			}

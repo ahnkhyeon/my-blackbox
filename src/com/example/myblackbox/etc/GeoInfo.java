@@ -11,6 +11,34 @@ public class GeoInfo {
 		theLongitude = longitude;
 		theDate = date;
 	}
+ 	
+	public double getTheLatitude() {
+		return theLatitude;
+	}
+
+	public void setTheLatitude(double theLatitude) {
+		this.theLatitude = theLatitude;
+	}
+
+	public double getTheLongitude() {
+		return theLongitude;
+	}
+
+	public void setTheLongitude(double theLongitude) {
+		this.theLongitude = theLongitude;
+	}
+
+	public String getTheDate() {
+		return theDate;
+	}
+
+	public void setTheDate(String theDate) {
+		this.theDate = theDate;
+	}
+
+	public GeoInfo() {
+		
+	}
 
 	public double getLatitude() {
 		return theLatitude;

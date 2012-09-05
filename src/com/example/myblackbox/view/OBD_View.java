@@ -32,6 +32,8 @@ public class OBD_View extends Activity {
 
 	GlobalVar theGlobalVar;
 
+	boolean isBlueConnect;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,13 +44,6 @@ public class OBD_View extends Activity {
 		if (theGlobalVar == null) {
 			theGlobalVar = (GlobalVar) getApplicationContext();
 		}
-		
-		CheckBluetooth();
-	
-		theGlobalVar.theObdHandler = mHandler;
-		
-		Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(GlobalVar.BLUE_REQ_OBD_INFO, 1, 0);
-		theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
 
 		valueEngineRPM = (TextView) findViewById(R.id.valueEngineRPM);
 		valueEngineTemp = (TextView) findViewById(R.id.valueEngineTemp);
@@ -67,8 +62,16 @@ public class OBD_View extends Activity {
 		gageThrottlePos.setMax(100);
 		gageAirFlow.setMax(655);
 		gageSpeed.setMax(255);
-		
-		
+
+		if (isBlueConnect = CheckBluetooth()) {
+			Log.e(GlobalVar.TAG, "NO Blue");
+			theGlobalVar.theObdHandler = mHandler;
+
+			Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(
+					GlobalVar.BLUE_REQ_OBD_INFO, 1, 0);
+			theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
+
+		}
 
 	}
 
@@ -79,7 +82,7 @@ public class OBD_View extends Activity {
 			case GlobalVar.OBD_INFO_FROM_OBD:
 
 				// 데이터 들어왔을때
-				
+
 				OBD_Info theInputData = (OBD_Info) msg.obj;
 
 				valueEngineRPM.setText(theInputData.getObdEngineRpm());
@@ -103,29 +106,27 @@ public class OBD_View extends Activity {
 			}
 		}
 	};
-	
-	
-	
-	private void CheckBluetooth() {
-		String theBlueName = theGlobalVar.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
-		
-		
-		
-		
-		
-		
-		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-		
-		if(!mBluetoothAdapter.isEnabled()) {
+	private boolean CheckBluetooth() {
+		String theBlueName = theGlobalVar
+				.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
+
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
+				.getDefaultAdapter();
+
+		if (!mBluetoothAdapter.isEnabled()) {
 			GlobalVar.popupToast(OBD_View.this, "블루투스가 꺼져있습니다.");
-		} else if(theBlueName.length() == 0) {
+			return false;
+		} else if (theBlueName.length() == 0) {
 			GlobalVar.popupToast(OBD_View.this, "블루투스 정보를 입력해주세요.");
-		} else if(theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
+			return false;
+		} else if (theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
 			GlobalVar.popupToast(OBD_View.this, "OBD Server에 연결되어 있지 않습니다.");
-		} 
+			return false;
+		}
+
+		return true;
 	}
-	
 
 	/** Custom Hardware Button */
 	@Override
@@ -134,73 +135,74 @@ public class OBD_View extends Activity {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_BACK:
 			if (GlobalVar.isDebug)
-				//Log.e(GlobalVar.TAG, "KeyCode Back");
-			
-			
+				// Log.e(GlobalVar.TAG, "KeyCode Back");
 
-			finish();
+				finish();
 
 			return false;
 		case KeyEvent.KEYCODE_VOLUME_UP:
 			if (GlobalVar.isDebug)
-				//Log.e(GlobalVar.TAG, "KeyCode Valume Up");
-			return false;
+				// Log.e(GlobalVar.TAG, "KeyCode Valume Up");
+				return false;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			if (GlobalVar.isDebug)
-				//Log.e(GlobalVar.TAG, "KeyCode Balume Down");
-			return false;
+				// Log.e(GlobalVar.TAG, "KeyCode Balume Down");
+				return false;
 		}
 
 		return true;
 	}
+
 	/** Android Life Cycle */
 	@Override
 	public void onStart() {
 		super.onStart();
-//		//Log.e(GlobalVar.TAG,"onStart()");
+		// //Log.e(GlobalVar.TAG,"onStart()");
 	}
 
 	@Override
 	public void onRestart() {
 		super.onRestart();
-//		//Log.e(GlobalVar.TAG,"onRestart()");
+		// //Log.e(GlobalVar.TAG,"onRestart()");
 
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-//		//Log.e(GlobalVar.TAG,"onResume()");
+		// //Log.e(GlobalVar.TAG,"onResume()");
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-//		//Log.e(GlobalVar.TAG,"onPause()");
+		// //Log.e(GlobalVar.TAG,"onPause()");
 
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-//		//Log.e(GlobalVar.TAG,"onStop()");
+		// //Log.e(GlobalVar.TAG,"onStop()");
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-//		//Log.e(GlobalVar.TAG,"onDestroy()");
-		
-		Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(GlobalVar.BLUE_FIN_SEND_DATA);
-		theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
+		// //Log.e(GlobalVar.TAG,"onDestroy()");
 
+		if (isBlueConnect) {
 
-		if (theGlobalVar == null) {
-			theGlobalVar = (GlobalVar) getApplicationContext();
+			Message theMsg = theGlobalVar.theBlueCommandHandler
+					.obtainMessage(GlobalVar.BLUE_FIN_SEND_DATA);
+			theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
+
+			if (theGlobalVar == null) {
+				theGlobalVar = (GlobalVar) getApplicationContext();
+			}
+
+			theGlobalVar.theObdHandler = null;
 		}
-
-		
-		theGlobalVar.theObdHandler = null;
 
 	}
 }

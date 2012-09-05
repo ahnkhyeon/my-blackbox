@@ -30,8 +30,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Sensor;
@@ -53,7 +56,11 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -71,6 +78,7 @@ import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
 import com.example.myblackbox.etc.ShakeEventListener;
 import com.example.myblackbox.etc.UploadData;
+import com.example.myblackbox.setting.SettingWebLogin;
 
 public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
@@ -105,6 +113,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 	private Button recordBtn;
 	private Button recordStopBtn;
+	private Button mapHiddenBtn;
 	// ////////////////////////////////////////////////////////////////////////
 
 	private int CameraQuailty;
@@ -126,6 +135,9 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private ShakeEventListener mSensorListener;
 	private boolean isShake = false;
 
+	/** Bluetooth */
+	boolean isBlueConect;
+
 	// //////////////////////////////////////////////////////////////////////
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -136,8 +148,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		theGlobalVar = (GlobalVar) getApplicationContext();
 
 		theGlobalVar.theCameraHandler = mHandler;
-		
-		CheckBluetooth();
+
+		isBlueConect = CheckBluetooth();
 
 		/** Camera Set Info */
 
@@ -146,10 +158,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		StorageSize = (long) Integer.parseInt(theGlobalVar
 				.getSharedPref(GlobalVar.SHARED_CAMERA_STORAGE_SIZE))
 				* (long) 1024 * (long) 1024 * (long) 1024;
-		//Log.e(GlobalVar.TAG, "StorageSiae : " + StorageSize);
+		// Log.e(GlobalVar.TAG, "StorageSiae : " + StorageSize);
 
 		RecordTime = Integer.parseInt(theGlobalVar
-				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 20000;   // 60000;
+				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 20000; // 60000;
 
 		// Upload Data Setting
 		theUploadDataSet = new ArrayList<UploadData>(10);
@@ -167,7 +179,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				.setOnShakeListener(new ShakeEventListener.OnShakeListener() {
 
 					public void onShake() {
-						//  Auto-generated method stub
+						// Auto-generated method stub
 						if (recordBtn.isEnabled() == true) {
 							return;
 						}
@@ -175,13 +187,13 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 						if (getShakeState() == false) {
 
 							setShakeState(true);
-							theRestUploadData = NUMBER_UPLOAD_ITEM-1;
+							theRestUploadData = NUMBER_UPLOAD_ITEM - 1;
 
 							if (theUploadDataSet.size() > 1) {
 								addSendPool(theUploadDataSet
 										.get(theUploadDataSet.size() - 2));
 							} else {
-								//Log.e(GlobalVar.TAG, "아직 업로드 할 내용이 없음");
+								// Log.e(GlobalVar.TAG, "아직 업로드 할 내용이 없음");
 							}
 						}
 					}
@@ -246,6 +258,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		// 녹화 및 정지 버튼 연결
 		recordBtn = (Button) findViewById(R.id.recordBtn);
 		recordStopBtn = (Button) findViewById(R.id.recordStopBtn);
+		mapHiddenBtn = (Button) findViewById(R.id.mapHiddenBtn);
 
 		final Timer PlayerTimer = new Timer();
 		final Timer MapTimer = new Timer();
@@ -284,9 +297,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		};
 
 		// MapTimer.schedule(MapTask, 0,10000);
-		CameraPreview();
 		// 녹화 버튼 리스너
-		recordBtn.setOnClickListener(new View.OnClickListener() {
+		recordBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 
 				filename = createFilename();
@@ -303,7 +315,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 		recordStopBtn.setEnabled(false);
 		// 녹화 정리 리스너
-		recordStopBtn.setOnClickListener(new View.OnClickListener() {
+		recordStopBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				PlayerTimer.cancel();
 				stopRecording();
@@ -318,8 +330,46 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			}
 		});
 
-	}
+		// 맵 보이기 버튼
+		mapHiddenBtn.setOnClickListener(new OnClickListener() {
 
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+				Button theBtn = (Button) v;
+				RelativeLayout.LayoutParams theBtnParams;
+				if (theBtn.getText().equals(">")) {
+					theBtn.setText("<");
+					mapView.setVisibility(View.GONE);
+					
+					theBtnParams = new RelativeLayout.LayoutParams(
+							ViewGroup.LayoutParams.WRAP_CONTENT,
+							ViewGroup.LayoutParams.WRAP_CONTENT);
+					theBtnParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+					
+					theBtn.setLayoutParams(theBtnParams);
+				} else {
+					theBtn.setText(">");
+					mapView.setVisibility(View.VISIBLE);
+					
+					theBtnParams = new RelativeLayout.LayoutParams(
+							ViewGroup.LayoutParams.WRAP_CONTENT,
+							ViewGroup.LayoutParams.WRAP_CONTENT);
+					theBtnParams.addRule(RelativeLayout.LEFT_OF, R.id.mapview);
+					
+					theBtn.setLayoutParams(theBtnParams);
+				}
+			}
+		});
+		
+		CameraPreview();
+		 
+
+	
+
+	}
+	
+	
 	/*****************************************************************
 	 * Accident Upload & ETC
 	 *****************************************************************/
@@ -329,21 +379,21 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		// 업로드 데이터 저장으로 표시
 		lastUploadData().setSaved(true);
 		try {
-			lastUploadData().createDataFile(GlobalVar.DATA_PATH, GlobalVar.VIDEO_PATH);
+			lastUploadData().createDataFile(GlobalVar.DATA_PATH,
+					GlobalVar.VIDEO_PATH);
 		} catch (FileNotFoundException e) {
-			//  Auto-generated catch block
+			// Auto-generated catch block
 			e.printStackTrace();
 		} catch (ParserConfigurationException e) {
-			//  Auto-generated catch block
+			// Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformerFactoryConfigurationError e) {
-			//  Auto-generated catch block
+			// Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformerException e) {
-			//  Auto-generated catch block
+			// Auto-generated catch block
 			e.printStackTrace();
 		}
-	
 
 		printUploadData();
 
@@ -361,6 +411,11 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	// Obd Data 받기 시작 정지
 	// true : 시작 / false : 정지
 	private void ObdDataSwitch(boolean On_Off) {
+
+		if (!isBlueConect) {
+			return;
+		}
+
 		Message theMsg;
 
 		if (On_Off) {
@@ -394,10 +449,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				if (theUploadData != null) {
 					theUploadData.addObdInfo(theInputOBD);
 
-					//Log.e(GlobalVar.TAG,
-//							"Recv OBD : " + theInputOBD.getObdDate());
+					// Log.e(GlobalVar.TAG,
+					// "Recv OBD : " + theInputOBD.getObdDate());
 				} else {
-					//Log.e(GlobalVar.TAG, "theUploadData is Null");
+					// Log.e(GlobalVar.TAG, "theUploadData is Null");
 				}
 
 				break;
@@ -409,10 +464,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				if (theUploadData != null) {
 					theUploadData.addGeoInfo(theInputGeo);
 
-					//Log.e(GlobalVar.TAG,
-//							"Recv Geo : " + theInputGeo.getLatitude());
+					// Log.e(GlobalVar.TAG,
+					// "Recv Geo : " + theInputGeo.getLatitude());
 				} else {
-					//Log.e(GlobalVar.TAG, "theUploadData is Null");
+					// Log.e(GlobalVar.TAG, "theUploadData is Null");
 				}
 
 			}
@@ -430,8 +485,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private void printUploadData() {
 
 		for (int i = 0; i < theUploadDataSet.size(); i++) {
-			//Log.e(GlobalVar.TAG, "Data " + i + " : "
-//					+ theUploadDataSet.get(i).printObdData());
+			// Log.e(GlobalVar.TAG, "Data " + i + " : "
+			// + theUploadDataSet.get(i).printObdData());
 		}
 	}
 
@@ -499,7 +554,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 
 		super.onPause();
-		//Log.e("lifecycle", "onPause()");
+		// Log.e("lifecycle", "onPause()");
 	}
 
 	protected void onDestroy() {
@@ -532,7 +587,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 			recorder.setProfile(CamcorderProfile.get(CameraQuailty));
 
-			//Log.e(TAG, "current filename : " + filename);
+			// Log.e(TAG, "current filename : " + filename);
 
 			// 미리보기 디스플레이 surfaceview 화면 설정
 			recorder.setOutputFile(filename);
@@ -555,7 +610,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			theUploadDataSet.add(uploadData);
 
 		} catch (Exception ex) {
-			//Log.e(TAG, "Exception : ", ex);
+			// Log.e(TAG, "Exception : ", ex);
 
 			recorder.release();
 			recorder = null;
@@ -634,7 +689,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		} catch (IOException exception) {
 			mCamera.release();
 			mCamera = null;
-			//Log.e("created", "asdf");
+			// Log.e("created", "asdf");
 			// : add more exception handling logic here
 		}
 	}
@@ -643,7 +698,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		// Auto-generated method stub
 		// mCamera.stopPreview();
 		// mCamera.release();
-		//Log.e("destory", "asdf");
+		// Log.e("destory", "asdf");
 		mCamera = null;
 	}
 
@@ -688,7 +743,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 
 		Collections.sort(video);
-		
+
 		if (!video.isEmpty()) {
 
 			// 리스트의 가장 마지막 비디오를 삭제
@@ -721,14 +776,14 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				isStorage = false;
 			}
 
-			//Log.e("exit", "종료");
+			// Log.e("exit", "종료");
 		}
 
 		// 녹화버튼이 클릭시에 스레드를 정지시킬 interrupt
 		public void interrupt() {
 			super.interrupt();
 			isStorage = false;
-			//Log.e("cancle", "자니?");
+			// Log.e("cancle", "자니?");
 
 		}
 	}
@@ -738,7 +793,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		public boolean accept(File dir, String name) {
 			return (name.endsWith(".mp4")); // 확장자가 mp4인지 확인
 		}
-		
+
 	}
 
 	/*****************************************************************
@@ -910,24 +965,25 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		}
 		return geoString.toString();
 	}
-	private void CheckBluetooth() {
-		String theBlueName = theGlobalVar.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
-		
-		
-		
-		
-		
-		
-		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-		
-		if(!mBluetoothAdapter.isEnabled()) {
+	private boolean CheckBluetooth() {
+		String theBlueName = theGlobalVar
+				.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
+
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
+				.getDefaultAdapter();
+
+		if (!mBluetoothAdapter.isEnabled()) {
 			GlobalVar.popupToast(CameraView.this, "블루투스가 꺼져있습니다.");
-		} else if(theBlueName.length() == 0) {
+			return false;
+		} else if (theBlueName.length() == 0) {
 			GlobalVar.popupToast(CameraView.this, "블루투스 정보를 입력해주세요.");
-		} else if(theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
+			return false;
+		} else if (theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
 			GlobalVar.popupToast(CameraView.this, "OBD Server에 연결되어 있지 않습니다.");
-		} 
+			return false;
+		}
+		return true;
 	}
-	
+
 }
