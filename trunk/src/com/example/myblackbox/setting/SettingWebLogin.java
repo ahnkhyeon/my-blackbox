@@ -79,27 +79,7 @@ public class SettingWebLogin extends Activity {
 					//Log.e(GlobalVar.TAG,"ID : "+theLoginID.getText() + " / Pass : "+theLoginPW.getText());
 					
 					 showDialog(GlobalVar.DIALOG_PROGRESS_ID);
-					 
-					
-
-//					gsHttpConnect com = new gsHttpConnect();
-//
-//					Map<String, Object> params = new HashMap<String, Object>();
-//
-//					params.put("user_id", theLoginID.getText());
-//					params.put("user_pw", theLoginPW.getText());
-//
-//					try {
-//						String theResult = com.request(new URL(GlobalVar.theURL
-//								+ "loginForMobile.php"), "POST", params);
-//						//Log.e(GlobalVar.TAG, theResult);
-//					} catch (MalformedURLException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
+	
 
 				}
 

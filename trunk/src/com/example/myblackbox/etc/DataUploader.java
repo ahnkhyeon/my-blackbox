@@ -34,6 +34,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -54,7 +55,7 @@ public class DataUploader extends Thread {
 	private boolean mFinished;
 
 	private Handler mHandler;
-
+	
 	public DataUploader(ArrayList<UploadData> thePool, String url, String user,
 			String identity, Handler handler) {
 		// TODO Auto-generated constructor stub
@@ -70,6 +71,7 @@ public class DataUploader extends Thread {
 		mFinished = false;
 
 		mHandler = handler;
+		
 
 	}
 
@@ -100,6 +102,9 @@ public class DataUploader extends Thread {
 			}
 		}
 	}
+	
+	
+	
 
 	/**
 	 * Pause this thread
@@ -119,6 +124,12 @@ public class DataUploader extends Thread {
 			mPauseLock.notifyAll();
 		}
 	}
+	
+	public void setUserInfo(String id,String identity) {
+		theUser = id;
+		theIdentity = identity;
+	}
+	
 
 	private boolean Uploader(UploadData theData) {
 		boolean isSuccess = true;
@@ -170,7 +181,9 @@ public class DataUploader extends Thread {
 
 			String theResponseString = EntityUtils.toString(theResEntity);
 			
+			
 			errString = chkError(theResponseString);
+			Log.e(GlobalVar.TAG,"Error : "+errString);
 
 			Log.e(GlobalVar.TAG, "Uploaded : " + theResponseString);
 
@@ -387,6 +400,7 @@ public class DataUploader extends Thread {
 					break;
 				case XmlPullParser.START_TAG:
 					if(parser.getName().equals("error")) {
+						
 						isError = true;
 					}
 					break;
@@ -400,9 +414,10 @@ public class DataUploader extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return "";
 
 	}
+
 
 }
 
