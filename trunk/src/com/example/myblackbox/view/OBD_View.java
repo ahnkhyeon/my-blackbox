@@ -32,7 +32,6 @@ public class OBD_View extends Activity {
 
 	GlobalVar theGlobalVar;
 
-	boolean isBlueConnect;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -63,14 +62,17 @@ public class OBD_View extends Activity {
 		gageAirFlow.setMax(655);
 		gageSpeed.setMax(255);
 
-		if (isBlueConnect = CheckBluetooth()) {
-			Log.e(GlobalVar.TAG, "NO Blue");
+		
+		CheckBluetooth();
+		
+		
+		
+		if(theGlobalVar.getBlueState() == BluetoothService.STATE_CONNECTED) {
 			theGlobalVar.theObdHandler = mHandler;
 
 			Message theMsg = theGlobalVar.theBlueCommandHandler.obtainMessage(
 					GlobalVar.BLUE_REQ_OBD_INFO, 1, 0);
 			theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);
-
 		}
 
 	}
@@ -127,6 +129,7 @@ public class OBD_View extends Activity {
 
 		return true;
 	}
+	
 
 	/** Custom Hardware Button */
 	@Override
@@ -191,8 +194,9 @@ public class OBD_View extends Activity {
 		super.onDestroy();
 		// //Log.e(GlobalVar.TAG,"onDestroy()");
 
-		if (isBlueConnect) {
-
+		
+		if(theGlobalVar.getBlueState() == BluetoothService.STATE_CONNECTED) {
+		
 			Message theMsg = theGlobalVar.theBlueCommandHandler
 					.obtainMessage(GlobalVar.BLUE_FIN_SEND_DATA);
 			theGlobalVar.theBlueCommandHandler.sendMessage(theMsg);

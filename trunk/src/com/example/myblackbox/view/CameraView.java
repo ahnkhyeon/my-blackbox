@@ -2,13 +2,10 @@ package com.example.myblackbox.view;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -16,25 +13,12 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Sensor;
@@ -58,18 +42,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 
 import com.example.myblackbox.R;
 import com.example.myblackbox.etc.BluetoothService;
@@ -78,7 +54,13 @@ import com.example.myblackbox.etc.GlobalVar;
 import com.example.myblackbox.etc.OBD_Info;
 import com.example.myblackbox.etc.ShakeEventListener;
 import com.example.myblackbox.etc.UploadData;
-import com.example.myblackbox.setting.SettingWebLogin;
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
 public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
@@ -93,9 +75,11 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	MediaPlayer player;
 	MediaRecorder recorder;
 	boolean isStorage = true;
+	boolean isMap = true;
 	boolean PreviewOn = false;
 	private Camera mCamera = null;
 
+	public int MapTime = 7000;
 	SurfaceHolder holder;
 	StorageThread ST = new StorageThread();
 	MapThread MT = new MapThread();
@@ -114,6 +98,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private Button recordBtn;
 	private Button recordStopBtn;
 	private Button mapHiddenBtn;
+
+	private boolean Mapon = true;
 	// ////////////////////////////////////////////////////////////////////////
 
 	private int CameraQuailty;
@@ -135,21 +121,18 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private ShakeEventListener mSensorListener;
 	private boolean isShake = false;
 
-	/** Bluetooth */
-	boolean isBlueConect;
-
 	// //////////////////////////////////////////////////////////////////////
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.camera_view);
-
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		/** GlobalVariable Set */
 		theGlobalVar = (GlobalVar) getApplicationContext();
 
 		theGlobalVar.theCameraHandler = mHandler;
 
-		isBlueConect = CheckBluetooth();
+		CheckBluetooth();
 
 		/** Camera Set Info */
 
@@ -271,10 +254,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 					// 녹화 중지 후에 리소스 해제
 					recorder.stop();
-
-					chkUploadData();
-
 					recorder.reset();
+					chkUploadData();
 
 					recorder.release();
 					mCamera.lock();
@@ -292,6 +273,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		};
 		final TimerTask MapTask = new TimerTask() {
 			public void run() {
+				currentLocation = locM.getLastKnownLocation(bestProvider);
 				updateOverlay(currentLocation);
 			}
 		};
@@ -319,10 +301,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			public void onClick(View v) {
 				PlayerTimer.cancel();
 				stopRecording();
+				currentLocation = locM.getLastKnownLocation(bestProvider);
 				updateOverlay(currentLocation);
 				ST.interrupt();
-				// MapTimer.cancel();
-
+				MT.interrupt();
 				recordBtn.setEnabled(true);
 				recordStopBtn.setEnabled(false);
 
@@ -341,35 +323,31 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				if (theBtn.getText().equals(">")) {
 					theBtn.setText("<");
 					mapView.setVisibility(View.GONE);
-					
+
 					theBtnParams = new RelativeLayout.LayoutParams(
 							ViewGroup.LayoutParams.WRAP_CONTENT,
 							ViewGroup.LayoutParams.WRAP_CONTENT);
 					theBtnParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-					
+
 					theBtn.setLayoutParams(theBtnParams);
 				} else {
 					theBtn.setText(">");
 					mapView.setVisibility(View.VISIBLE);
-					
+
 					theBtnParams = new RelativeLayout.LayoutParams(
 							ViewGroup.LayoutParams.WRAP_CONTENT,
 							ViewGroup.LayoutParams.WRAP_CONTENT);
 					theBtnParams.addRule(RelativeLayout.LEFT_OF, R.id.mapview);
-					
+
 					theBtn.setLayoutParams(theBtnParams);
 				}
 			}
 		});
-		
-		CameraPreview();
-		 
 
-	
+		CameraPreview();
 
 	}
-	
-	
+
 	/*****************************************************************
 	 * Accident Upload & ETC
 	 *****************************************************************/
@@ -412,7 +390,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	// true : 시작 / false : 정지
 	private void ObdDataSwitch(boolean On_Off) {
 
-		if (!isBlueConect) {
+		if (theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
 			return;
 		}
 
@@ -803,7 +781,39 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private class MapThread extends Thread {
 		public void run() {
 			try {
-				Thread.currentThread().sleep(7000);
+				while (isMap) {
+					Thread.currentThread().sleep(MapTime);
+
+					locM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+					// 사용가능한 적절한 프로바이더를 받아온다.
+					// network (보통 3G망,Wifi AP 위치정보)또는 gps 둘중 하나로 설정된다.
+					bestProvider = locM.getBestProvider(new Criteria(), true);
+
+					// 기기에 가지고 있는 마지막 위치정보로 현재위치를 초기 설정한다.
+					currentLocation = locM.getLastKnownLocation(bestProvider);
+
+					// 위치 리스너 초기화
+					locL = new MyLocationListener();
+					// 위치 매니저에 위치 리스너를 셋팅한다.
+					// 위치 리스너에서 10000ms (10초) 마다 100미터 이상 이동이 발견되면 업데이트를 하려한다.
+					// locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
+					// 처음에 한번 맵뷰에 그려준다.
+
+					updateOverlay(currentLocation);
+					SimpleDateFormat theFormat = new SimpleDateFormat(
+							"yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+					String theDate = theFormat.format(new Date());
+
+					GeoInfo tempGeo = new GeoInfo(
+							currentLocation.getLatitude(),
+							currentLocation.getLongitude(), theDate);
+
+					Message theMsg = mHandler.obtainMessage(
+							GlobalVar.GEO_INFO_FROM_CAMERA, tempGeo);
+					mHandler.sendMessage(theMsg);
+
+					Log.e("MapThread", "map updating...........");
+				}
 			} catch (InterruptedException e) {
 				// Auto-generated catch block
 				e.printStackTrace();
@@ -811,6 +821,12 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			updateOverlay(currentLocation);
 		}
 
+		public void interrupt() {
+			isMap = false;
+			Log.e("MapThread", "End.............");
+			super.interrupt();
+
+		}
 	}
 
 	@Override
@@ -825,6 +841,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			// 위치 이동이 발견되었을때 호출될 메소드.
 			// 위의 설정에서 10초마다 100미터 이상 이동이 발견되면 호출된다.
 			updateOverlay(location);
+			Log.e("map", "MapUDATE...........//////");
 
 			// Geo 정보를 핸들러에 전달
 			SimpleDateFormat theFormat = new SimpleDateFormat(
@@ -966,7 +983,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		return geoString.toString();
 	}
 
-	private boolean CheckBluetooth() {
+	private void CheckBluetooth() {
 		String theBlueName = theGlobalVar
 				.getSharedPref(GlobalVar.SHARED_BLUE_NAME);
 
@@ -975,15 +992,15 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 		if (!mBluetoothAdapter.isEnabled()) {
 			GlobalVar.popupToast(CameraView.this, "블루투스가 꺼져있습니다.");
-			return false;
+
 		} else if (theBlueName.length() == 0) {
 			GlobalVar.popupToast(CameraView.this, "블루투스 정보를 입력해주세요.");
-			return false;
+
 		} else if (theGlobalVar.getBlueState() != BluetoothService.STATE_CONNECTED) {
 			GlobalVar.popupToast(CameraView.this, "OBD Server에 연결되어 있지 않습니다.");
-			return false;
+
 		}
-		return true;
+
 	}
 
 }
