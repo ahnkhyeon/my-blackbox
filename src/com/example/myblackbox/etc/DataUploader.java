@@ -34,7 +34,9 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -137,6 +139,7 @@ public class DataUploader extends Thread {
 
 		try {
 			Log.e(GlobalVar.TAG, "Start Upload");
+		
 			HttpClient theClient = new DefaultHttpClient();
 
 			HttpPost thePost = new HttpPost(theUploadURL);

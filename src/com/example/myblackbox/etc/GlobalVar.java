@@ -18,17 +18,19 @@ public class GlobalVar extends Application {
 	public static final int REQUEST_CAMERA_RESOLUTION = 4;
 	public static final int REQUEST_CAMERA_STORAGE = 5;
 	public static final int REQUEST_CAMERA_RECORD_TIME = 6;
+	public static final int REQUEST_WEB_NETWORK = 7;
+	public static final int REQUEST_CRASH_CRITERIA = 8;
 
 	public static final String EXTRA_DEVICE = "device_info";
 	public static final String CAMERA_RECORD_TIME = "recordTime";
 	public static final String CAMERA_STORAGE = "storage";
 	public static final String CAMERA_RESOLUTION = "resolution";
+	public static final String NETWORK = "webNetwork";
+	public static final String CRASH_CRITERIA = "crashCriteria";
 
 	public static int RECONNECT_TIME = 5000;
 
 	// Web login
-
-	
 
 	public static final int LOGIN_FLAG_ERROR = 0;
 	public static final int LOGIN_FLAG_OK = 1;
@@ -54,7 +56,6 @@ public class GlobalVar extends Application {
 	public static final int OBD_INFO_FROM_OBD = 1;
 	public static final int OBD_INFO_FROM_CAMERA = 2;
 	public static final int GEO_INFO_FROM_CAMERA = 3;
-	
 
 	/** Currnet View */
 	private int currentView;
@@ -72,41 +73,43 @@ public class GlobalVar extends Application {
 	public static final String EVENT_DATA_PATH = "/sdcard/MyBlackBox/Event/Data";
 
 	// Web Address
-	public static final String WEB_URL = "http://192.168.0.13/MyCarServer/";
+	public static final String WEB_URL = "http://192.168.1.3/MyCarServer/";
 
 	// Shared Preferences
+	public static final String SHARED_IS_INIT = "is_init";
 	public static final String SHARED_BLUE_NAME = "BlueName";
 	public static final String SHARED_BLUE_ADDRESS = "BlueAddress";
 	public static final String SHARED_LOGIN_ID = "LoginID";
 	public static final String SHARED_LOGIN_IDENTITY = "LoginIdentity";
-	
+	public static final String SHARED_WEB_NETWORK = "WebNetwork";
 
 	public static final String SHARED_CAMERA_QUAILTY = "CameraQuailty";
 	public static final String SHARED_CAMERA_STORAGE_SIZE = "VideoStorageSize";
 	public static final String SHARED_CAMERA_RECORD_TIME = "RecordSize";
-	
+
+	public static final String SHARED_CRASH_CRITERIA = "CrashCriteria";
+
+	// Web Network
+
+	public static final String[] WEB_NETWORK = { "only Wifi", "Mobile + Wifi" };
+
 	// Upload Data
 	public static final int ADD_UPLOAD_DATA = 1;
-	
-	
+
 	// Dialog
 	public static final int DIALOG_PROGRESS_ID = 1;
 	public static final int DIALOG_CAMERA_START = 2;
-	
-	
-	
-	
+
 	// Bluetooth Status
 	private int BLUE_TOOTH_STATE;
-	
+
 	public void setBlueState(int state) {
 		BLUE_TOOTH_STATE = state;
 	}
-	
+
 	public synchronized int getBlueState() {
 		return BLUE_TOOTH_STATE;
 	}
-
 
 	public static void popupToast(Context theCntext, String inString) {
 		Toast.makeText(theCntext, inString, Toast.LENGTH_SHORT).show();
@@ -119,6 +122,23 @@ public class GlobalVar extends Application {
 				MODE_PRIVATE);
 
 		return thePrefs.getString(getName, "");
+	}
+
+	public final void setSharedPref(String setName, String setValue) {
+		SharedPreferences thePrefs = getSharedPreferences("settingValues",
+				MODE_PRIVATE);
+		SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+		thePrefEdit.putString(setName, setValue);
+		thePrefEdit.commit();
+	}
+
+	public final void removeSharedPref(String removeName) {
+
+		SharedPreferences thePrefs = getSharedPreferences("settingValues",
+				MODE_PRIVATE);
+		SharedPreferences.Editor thePrefEdit = thePrefs.edit();
+		thePrefEdit.remove(removeName);
+		thePrefEdit.commit();
 	}
 
 	public int getCurrentView() {

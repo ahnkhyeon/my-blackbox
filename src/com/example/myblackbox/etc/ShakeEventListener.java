@@ -9,12 +9,8 @@ public class ShakeEventListener implements SensorEventListener {
 
 	/** Minimum movement force to consider. */
 	private double MIN_FORCE = 2.5;
-
-	public static final double MIN_FORCE_1 = 1.5;
-	public static final double MIN_FORCE_2 = 2.0;
-	public static final double MIN_FORCE_3 = 2.5;
-	public static final double MIN_FORCE_4 = 3.0;
-	public static final double MIN_FORCE_5 = 3.5;
+	
+	public static final double[] MIN_FORCEs = {1.5,2.0,2.5,3.0,3.5};
 
 	/**
 	 * Minimum times in a shake gesture that the direction of movement needs to

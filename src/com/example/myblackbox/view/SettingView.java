@@ -3,6 +3,8 @@ package com.example.myblackbox.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.microedition.khronos.opengles.GL;
+
 import com.example.myblackbox.R;
 import com.example.myblackbox.setting.*;
 
@@ -15,6 +17,8 @@ import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.CamcorderProfile;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -36,6 +40,8 @@ public class SettingView extends PreferenceActivity {
 	private Preference theBluetoothDisconnection;
 	private Preference theWebLogin;
 	private Preference theWebLogout;
+	private Preference theWebNetwork;
+	private Preference theCrashCriteria;
 
 	/** Global Variable */
 	private GlobalVar theGlobalVar;
@@ -64,6 +70,9 @@ public class SettingView extends PreferenceActivity {
 
 		theWebLogin = findPreference("settting_web_login");
 		theWebLogout = findPreference("settting_web_logout");
+		theWebNetwork = findPreference("settting_web_network");
+
+		theCrashCriteria = findPreference("settting_crash_criteria");
 
 		theAppInfo.setOnPreferenceClickListener(thePreferenceListener);
 
@@ -78,15 +87,21 @@ public class SettingView extends PreferenceActivity {
 
 		theWebLogin.setOnPreferenceClickListener(thePreferenceListener);
 		theWebLogout.setOnPreferenceClickListener(thePreferenceListener);
+		theWebNetwork.setOnPreferenceClickListener(thePreferenceListener);
+
+		theCrashCriteria.setOnPreferenceClickListener(thePreferenceListener);
 
 		SharedPreferences thePrefs = getSharedPreferences("settingValues",
 				MODE_PRIVATE);
 		String theBlueName = thePrefs.getString(GlobalVar.SHARED_BLUE_NAME, "");
 		String theBlueAddress = thePrefs.getString(
 				GlobalVar.SHARED_BLUE_ADDRESS, "");
+
 		String theWebId = thePrefs.getString(GlobalVar.SHARED_LOGIN_ID, "");
 		String theWebIdentity = thePrefs.getString(
 				GlobalVar.SHARED_LOGIN_IDENTITY, "");
+		String theNetwork = thePrefs
+				.getString(GlobalVar.SHARED_WEB_NETWORK, "");
 
 		String theCameraQuailty = thePrefs.getString(
 				GlobalVar.SHARED_CAMERA_QUAILTY, "");
@@ -94,6 +109,9 @@ public class SettingView extends PreferenceActivity {
 				GlobalVar.SHARED_CAMERA_RECORD_TIME, "");
 		String theStorageSize = thePrefs.getString(
 				GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "");
+
+		String theCrash = thePrefs.getString(GlobalVar.SHARED_CRASH_CRITERIA,
+				"");
 
 		if (theBlueName.length() == 0 && theBlueAddress.length() == 0) {
 			theBluetoothConnection.setTitle("Bluetooth 연결");
@@ -116,52 +134,55 @@ public class SettingView extends PreferenceActivity {
 			theWebLogin.setSummary("" + theWebId);
 			theWebLogout.setEnabled(true);
 		}
+		if (theNetwork.length() == 0) {
+			theGlobalVar.setSharedPref(GlobalVar.SHARED_WEB_NETWORK, "0");
+			theWebNetwork.setSummary(GlobalVar.WEB_NETWORK[0]);
+		} else {
+			theWebNetwork.setSummary(GlobalVar.WEB_NETWORK[Integer
+					.parseInt(theNetwork)]);
+		}
 
 		if (theCameraQuailty.length() == 0) {
-			Camera mCamera = Camera.open();
-			Camera.Parameters params = mCamera.getParameters();
-			
-			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
-			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_QUAILTY, CamcorderProfile.QUALITY_HIGH+"");
-			thePrefEdit.commit();
-			
+			theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_QUAILTY,
+					CamcorderProfile.QUALITY_HIGH + "");
 			theCameraResolution.setSummary("High Quailty");
 		} else {
-			
+
 			switch (Integer.parseInt(theCameraQuailty)) {
 			case CamcorderProfile.QUALITY_HIGH:
-				theCameraResolution.setSummary("High Quailty");	
+				theCameraResolution.setSummary("High Quailty");
 				break;
 			case CamcorderProfile.QUALITY_LOW:
 				theCameraResolution.setSummary("Low Quailty");
 				break;
 			}
-			
-			
+
 		}
 
 		if (theRecordTime.length() == 0) {
-			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
-			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_RECORD_TIME, "1");
-			thePrefEdit.commit();
-			
-			theCameraRecordTime.setSummary("1");
+			theGlobalVar
+					.setSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME, "1");
+			theCameraRecordTime.setSummary("1분");
 		} else {
-			theCameraRecordTime.setSummary(theRecordTime+"분");
+			theCameraRecordTime.setSummary(theRecordTime + "분");
 		}
 
 		if (theStorageSize.length() == 0) {
-			thePrefs = getSharedPreferences("settingValues", MODE_PRIVATE);
-			SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-			thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "1");
-			thePrefEdit.commit();
-			
+			theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_STORAGE_SIZE,
+					"1");
+
 			theCameraStorage.setSummary("1 GB");
 		} else {
 			theCameraStorage.setSummary(theStorageSize + " GB");
 		}
+
+		if (theCrash.length() == 0) {
+			theGlobalVar.setSharedPref(GlobalVar.SHARED_CRASH_CRITERIA, "2");
+			theCrashCriteria.setSummary("3 단계");
+		} else {
+			theCrashCriteria.setSummary((Integer.parseInt(theCrash)+1) + " 단계");
+		}
+
 	}
 
 	OnPreferenceClickListener thePreferenceListener = new OnPreferenceClickListener() {
@@ -172,10 +193,62 @@ public class SettingView extends PreferenceActivity {
 			if (preference.getKey().equals("setting_app_info")) {
 				/** 앱 정보 */
 				GlobalVar.popupToast(SettingView.this, "setting_app_info");
-				//Log.e(GlobalVar.TAG, "app info");
+
+				
+				
+			
+				
+				
+				
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_BLUE_NAME
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_BLUE_NAME));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_BLUE_ADDRESS
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_BLUE_ADDRESS));
+				Log.e(GlobalVar.TAG, GlobalVar.SHARED_LOGIN_ID + "/"
+						+ theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_LOGIN_IDENTITY
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_WEB_NETWORK
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_WEB_NETWORK));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_CAMERA_QUAILTY
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_CAMERA_QUAILTY));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_CAMERA_STORAGE_SIZE
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_CAMERA_STORAGE_SIZE));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_CAMERA_RECORD_TIME
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME));
+				Log.e(GlobalVar.TAG,
+						GlobalVar.SHARED_CRASH_CRITERIA
+								+ "/"
+								+ theGlobalVar
+										.getSharedPref(GlobalVar.SHARED_CRASH_CRITERIA));
+				
+				
+
+				// Log.e(GlobalVar.TAG, "app info");
 			} else if (preference.getKey().equals("settting_camera_resolution")) {
 				/** 카메라 해상도 */
-				//Log.e(GlobalVar.TAG, "Camera Resolution");
+				// Log.e(GlobalVar.TAG, "Camera Resolution");
 				Intent ResolutionIntent = new Intent(SettingView.this,
 						SettingCameraResolution.class);
 				startActivityForResult(ResolutionIntent,
@@ -204,8 +277,7 @@ public class SettingView extends PreferenceActivity {
 						.getDefaultAdapter();
 
 				if (mBluetoothAdapter == null) {
-					GlobalVar.popupToast(SettingView.this,
-							"블루투스를 사용할 수 없습니다.");
+					GlobalVar.popupToast(SettingView.this, "블루투스를 사용할 수 없습니다.");
 				} else if (!mBluetoothAdapter.isEnabled()) {
 					Intent enableBlueIntent = new Intent(
 							BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -230,15 +302,10 @@ public class SettingView extends PreferenceActivity {
 									public void onClick(DialogInterface dialog,
 											int which) {
 										// 'YES'
-										SharedPreferences thePrefs = getSharedPreferences(
-												"settingValues", MODE_PRIVATE);
-										SharedPreferences.Editor thePrefEdit = thePrefs
-												.edit();
-										thePrefEdit
-												.remove(GlobalVar.SHARED_BLUE_NAME);
-										thePrefEdit
-												.remove(GlobalVar.SHARED_BLUE_ADDRESS);
-										thePrefEdit.commit();
+										theGlobalVar
+												.removeSharedPref(GlobalVar.SHARED_BLUE_NAME);
+										theGlobalVar
+												.removeSharedPref(GlobalVar.SHARED_BLUE_ADDRESS);
 
 										theBluetoothConnection
 												.setTitle("Bluetooth 연결");
@@ -250,7 +317,6 @@ public class SettingView extends PreferenceActivity {
 												.obtainMessage(GlobalVar.BLUE_DISCONNECT);
 										theGlobalVar.theBlueCommandHandler
 												.sendMessage(theMsg);
-
 									}
 								})
 						.setNegativeButton("취소",
@@ -283,15 +349,11 @@ public class SettingView extends PreferenceActivity {
 									public void onClick(DialogInterface dialog,
 											int which) {
 										// 'YES'
-										SharedPreferences thePrefs = getSharedPreferences(
-												"settingValues", MODE_PRIVATE);
-										SharedPreferences.Editor thePrefEdit = thePrefs
-												.edit();
-										thePrefEdit
-												.remove(GlobalVar.SHARED_LOGIN_ID);
-										thePrefEdit
-												.remove(GlobalVar.SHARED_LOGIN_IDENTITY);
-										thePrefEdit.commit();
+
+										theGlobalVar
+												.removeSharedPref(GlobalVar.SHARED_LOGIN_ID);
+										theGlobalVar
+												.removeSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY);
 
 										theWebLogin.setTitle("Web 로그인");
 										theWebLogin.setSummary("");
@@ -309,6 +371,19 @@ public class SettingView extends PreferenceActivity {
 								});
 				AlertDialog alert = alert_confirm.create();
 				alert.show();
+			} else if (preference.getKey().equals("settting_web_network")) {
+
+				Intent NetworkIntent = new Intent(SettingView.this,
+						SettingWebNetwork.class);
+				startActivityForResult(NetworkIntent,
+						GlobalVar.REQUEST_WEB_NETWORK);
+
+			} else if (preference.getKey().equals("settting_crash_criteria")) {
+				Intent CrashIntent = new Intent(SettingView.this,
+						SettingCrashCriteria.class);
+				startActivityForResult(CrashIntent,
+						GlobalVar.REQUEST_CRASH_CRITERIA);
+
 			}
 
 			return false;
@@ -324,13 +399,9 @@ public class SettingView extends PreferenceActivity {
 				String theName = theInfo.substring(0, theInfo.length() - 18);
 				String theAddress = theInfo.substring(theInfo.length() - 17);
 
-				SharedPreferences thePrefs = getSharedPreferences(
-						"settingValues", MODE_PRIVATE);
-				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString(GlobalVar.SHARED_BLUE_NAME, theName);
-				thePrefEdit
-						.putString(GlobalVar.SHARED_BLUE_ADDRESS, theAddress);
-				thePrefEdit.commit();
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_BLUE_NAME, theName);
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_BLUE_ADDRESS,
+						theAddress);
 
 				theBluetoothConnection.setTitle("Bluetooth 다른 기기 연결");
 				theBluetoothConnection.setSummary("" + theName + "("
@@ -366,13 +437,10 @@ public class SettingView extends PreferenceActivity {
 				String theInfo = data.getExtras().getString(GlobalVar.LOGIN);
 				String[] theInfos = theInfo.split("/");
 
-				SharedPreferences thePrefs = getSharedPreferences(
-						"settingValues", MODE_PRIVATE);
-				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_ID, theInfos[0]);
-				thePrefEdit.putString(GlobalVar.SHARED_LOGIN_IDENTITY,
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_LOGIN_ID,
+						theInfos[0]);
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY,
 						theInfos[1]);
-				thePrefEdit.commit();
 
 				theWebLogin.setTitle("Web 다른 아이디 로그인");
 				theWebLogin.setSummary(theInfos[0]);
@@ -384,17 +452,13 @@ public class SettingView extends PreferenceActivity {
 			if (resultCode == Activity.RESULT_OK) {
 				String theInfo = data.getExtras().getString(
 						GlobalVar.CAMERA_RESOLUTION);
-				
 
-				SharedPreferences thePrefs = getSharedPreferences(
-						"settingValues", MODE_PRIVATE);
-				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_QUAILTY, theInfo);
-				thePrefEdit.commit();
-				
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_QUAILTY,
+						theInfo);
+
 				switch (Integer.parseInt(theInfo)) {
 				case CamcorderProfile.QUALITY_HIGH:
-					theCameraResolution.setSummary("High Quailty");	
+					theCameraResolution.setSummary("High Quailty");
 					break;
 				case CamcorderProfile.QUALITY_LOW:
 					theCameraResolution.setSummary("Low Quailty");
@@ -406,15 +470,11 @@ public class SettingView extends PreferenceActivity {
 			if (resultCode == Activity.RESULT_OK) {
 				String theInfo = data.getExtras().getString(
 						GlobalVar.CAMERA_STORAGE);
-				
 
-				SharedPreferences thePrefs = getSharedPreferences(
-						"settingValues", MODE_PRIVATE);
-				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_STORAGE_SIZE,	theInfo);
-				thePrefEdit.commit();
+				theGlobalVar.setSharedPref(
+						GlobalVar.SHARED_CAMERA_STORAGE_SIZE, theInfo);
 
-				theCameraStorage.setSummary(theInfo+" GB");
+				theCameraStorage.setSummary(theInfo + " GB");
 
 			}
 			break;
@@ -424,16 +484,35 @@ public class SettingView extends PreferenceActivity {
 				String theInfo = data.getExtras().getString(
 						GlobalVar.CAMERA_RECORD_TIME);
 
-				//Log.e(GlobalVar.TAG, "Time : " + theInfo);
-
-				SharedPreferences thePrefs = getSharedPreferences(
-						"settingValues", MODE_PRIVATE);
-				SharedPreferences.Editor thePrefEdit = thePrefs.edit();
-				thePrefEdit.putString(GlobalVar.SHARED_CAMERA_RECORD_TIME,
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME,
 						theInfo);
-				thePrefEdit.commit();
 
-				theCameraRecordTime.setSummary(theInfo+"분");
+				theCameraRecordTime.setSummary(theInfo + "분");
+
+			}
+			break;
+		case GlobalVar.REQUEST_WEB_NETWORK:
+			if (resultCode == Activity.RESULT_OK) {
+				String theInfo = data.getExtras().getString(GlobalVar.NETWORK);
+
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_WEB_NETWORK,
+						theInfo);
+
+				theWebNetwork.setSummary(GlobalVar.WEB_NETWORK[Integer
+						.parseInt(theInfo)]);
+			}
+
+			break;
+		case GlobalVar.REQUEST_CRASH_CRITERIA:
+			if (resultCode == Activity.RESULT_OK) {
+				String theInfo = data.getExtras().getString(
+						GlobalVar.CRASH_CRITERIA);
+
+				theGlobalVar.setSharedPref(GlobalVar.SHARED_CRASH_CRITERIA,
+						theInfo);
+
+				theCrashCriteria.setSummary((Integer.parseInt(theInfo) + 1)
+						+ " 단계");
 
 			}
 			break;
@@ -447,61 +526,61 @@ public class SettingView extends PreferenceActivity {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_BACK:
 			if (GlobalVar.isDebug)
-				//Log.e(GlobalVar.TAG, "KeyCode Back");
+				// Log.e(GlobalVar.TAG, "KeyCode Back");
 
-			finish();
+				finish();
 
 			return false;
 		case KeyEvent.KEYCODE_VOLUME_UP:
 			if (GlobalVar.isDebug)
-				//Log.e(GlobalVar.TAG, "KeyCode Valume Up");
-			return false;
+				// Log.e(GlobalVar.TAG, "KeyCode Valume Up");
+				return false;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			if (GlobalVar.isDebug)
-				//Log.e(GlobalVar.TAG, "KeyCode Balume Down");
-			return false;
+				// Log.e(GlobalVar.TAG, "KeyCode Balume Down");
+				return false;
 		}
 
 		return true;
 	}
-	
+
 	/** Android Life Cycle */
 	@Override
 	public void onStart() {
 		super.onStart();
-//		//Log.e(GlobalVar.TAG,"onStart()");
+		// //Log.e(GlobalVar.TAG,"onStart()");
 	}
 
 	@Override
 	public void onRestart() {
 		super.onRestart();
-//		//Log.e(GlobalVar.TAG,"onRestart()");
+		// //Log.e(GlobalVar.TAG,"onRestart()");
 
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-//		//Log.e(GlobalVar.TAG,"onResume()");
+		// //Log.e(GlobalVar.TAG,"onResume()");
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-//		//Log.e(GlobalVar.TAG,"onPause()");
+		// //Log.e(GlobalVar.TAG,"onPause()");
 
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-//		//Log.e(GlobalVar.TAG,"onStop()");
+		// //Log.e(GlobalVar.TAG,"onStop()");
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-//		//Log.e(GlobalVar.TAG,"onDestroy()");
-	
+		// //Log.e(GlobalVar.TAG,"onDestroy()");
+
 	}
 }

@@ -15,11 +15,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    
-    
 
     <application
         android:name=".etc.GlobalVar"
@@ -81,10 +80,23 @@
             android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".setting.SettingWebLogin"
+            android:label="Web 로그인"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Dialog" />
-        
-        <uses-library android:name="com.google.android.maps" android:required="true"/>
+        <activity
+            android:name=".setting.SettingWebNetwork"
+            android:label="Web 전송 네트워크"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Dialog" />
+        <activity
+            android:name=".setting.SettingCrashCriteria"
+            android:label="충돌 강도"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Dialog" />
+
+        <uses-library
+            android:name="com.google.android.maps"
+            android:required="true" />
     </application>
 
 </manifest>

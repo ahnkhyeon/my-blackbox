@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import android.R.integer;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -157,7 +158,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				SensorManager.SENSOR_DELAY_UI);
 
 		// shake 센서 감도
-		mSensorListener.setMinForce(ShakeEventListener.MIN_FORCE_3);
+		mSensorListener.setMinForce(ShakeEventListener.MIN_FORCEs[Integer.parseInt(theGlobalVar.getSharedPref(GlobalVar.SHARED_CRASH_CRITERIA))]);
 		mSensorListener
 				.setOnShakeListener(new ShakeEventListener.OnShakeListener() {
 
@@ -205,7 +206,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		locL = new MyLocationListener();
 		// 위치 매니저에 위치 리스너를 셋팅한다.
 		// 위치 리스너에서 10000ms (10초) 마다 100미터 이상 이동이 발견되면 업데이트를 하려한다.
-		locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
+//		locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
+		locM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, locL);
 
 		// 처음에 한번 맵뷰에 그려준다.
 		updateOverlay(currentLocation);
@@ -798,7 +800,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 					// 위치 리스너에서 10000ms (10초) 마다 100미터 이상 이동이 발견되면 업데이트를 하려한다.
 					// locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
 					// 처음에 한번 맵뷰에 그려준다.
-
+					
+					
 					updateOverlay(currentLocation);
 					SimpleDateFormat theFormat = new SimpleDateFormat(
 							"yyyy-MM-dd HH:mm:ss", Locale.KOREA);
