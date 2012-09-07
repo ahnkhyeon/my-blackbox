@@ -145,7 +145,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		// Log.e(GlobalVar.TAG, "StorageSiae : " + StorageSize);
 
 		RecordTime = Integer.parseInt(theGlobalVar
-				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 20000; // 60000;
+				.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME)) * 60000;
 
 		// Upload Data Setting
 		theUploadDataSet = new ArrayList<UploadData>(10);
