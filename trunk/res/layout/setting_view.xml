@@ -1,62 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="setting_activity_top_title"
-    android:title="설정">
-     
+    android:title="설정" >
+
     <PreferenceCategory
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:key="setting_app"
-        android:title="어플리케이션">
+        android:title="어플리케이션" >
+
         <Preference
             android:key="setting_app_info"
-            android:title="어플케이션 정보"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="어플케이션 정보" />
     </PreferenceCategory>
-     
+
     <PreferenceCategory
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:key="setting_camera"
-        android:title="Camera 설정">
+        android:title="Camera 설정" >
+
         <Preference
             android:key="settting_camera_resolution"
-            android:title="Camera 해상도"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Camera 해상도" />
+
         <Preference
             android:key="settting_camera_storage"
-            android:title="Camera 총 저장용량"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Camera 총 저장용량" />
+
         <Preference
             android:key="settting_camera_record_time"
-            android:title="Camera 저장 시간"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Camera 저장 시간" />
     </PreferenceCategory>
-    
+
     <PreferenceCategory
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:key="setting_bluetooth"
-        android:title="bluetooth 설정">
+        android:title="bluetooth 설정" >
+
         <Preference
             android:key="settting_bluetooth_connection"
-            android:title="Bluetooth 연결"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Bluetooth 연결" />
+
         <Preference
             android:key="settting_bluetooth_disconnection"
-            android:title="Bluetooth 해제"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Bluetooth 해제" />
     </PreferenceCategory>
-    
+
     <PreferenceCategory
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:key="setting_web"
-        android:title="Web 설정">
+        android:title="Web 설정" >
+
         <Preference
             android:key="settting_web_login"
-            android:title="Web 로그인"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Web 로그인" />
+
         <Preference
             android:key="settting_web_logout"
-            android:title="Web 로그아웃"
-            android:selectable="true" />
+            android:selectable="true"
+            android:title="Web 로그아웃" />
+
+        <Preference
+            android:key="settting_web_network"
+            android:selectable="true"
+            android:title="Web 전송 네트워크" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="setting_crash"
+        android:title="충돌 설정" >
+
+        <Preference
+            android:key="settting_crash_criteria"
+            android:selectable="true"
+            android:title="충돌 강도" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -19,6 +19,8 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.CamcorderProfile;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -58,6 +60,11 @@ public class MyBlackBox extends Activity {
 		theGlobalVar = (GlobalVar) getApplicationContext();
 		theGlobalVar.theBlueCommandHandler = mBlueCommandHandler;
 		theGlobalVar.theUploadHandler = mDataUploaderHandler;
+
+		if (!theGlobalVar.getSharedPref(GlobalVar.SHARED_IS_INIT).equals(
+				"start")) {
+			initSettingInfo();
+		}
 
 		// Setting Bluetooth
 		theBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -300,23 +307,41 @@ public class MyBlackBox extends Activity {
 
 					UploadData theData = (UploadData) msg.obj;
 
-					// Upload Data 추가
-					theUploadPool.add(theData);
-
-					// Log.e(GlobalVar.TAG, "Upload Data : " +
-					// theData.getDate());
-
+					
 					// Event 디렉토리로 복사
 					DataFileCopy theFileCopy = new DataFileCopy(
 							theData.getVideoPath(), GlobalVar.EVENT_PATH + "/"
 									+ theData.getDate() + ".mp4", theData);
 					theFileCopy.start();
 
+					
+					
+					
+					
+					
+					ConnectivityManager netManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+					boolean isMobie = netManager.getNetworkInfo(
+							ConnectivityManager.TYPE_MOBILE).isConnected();
+					boolean isWifi = netManager.getNetworkInfo(
+							ConnectivityManager.TYPE_WIFI).isConnected();
+
+					
+					
+					
 					// Upload 시작
 					if (theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID)
 							.length() == 0) {
 						GlobalVar.popupToast(MyBlackBox.this,
 								"Web 로그인 정보가 없습니다.");
+
+					} else if (Integer.parseInt(theGlobalVar
+							.getSharedPref(GlobalVar.SHARED_WEB_NETWORK)) == 0
+							&& isWifi == false) {
+						GlobalVar.popupToast(MyBlackBox.this, "Wifi에 연결해 주세요");
+						
+					} else if(Integer.parseInt(theGlobalVar
+							.getSharedPref(GlobalVar.SHARED_WEB_NETWORK)) == 1 && isMobie == false) {
+						GlobalVar.popupToast(MyBlackBox.this, "모바일 네트워크를 사용할 수 없습니다.");
 					} else {
 						// 사용자 정보 적용
 						theDataUploader
@@ -325,6 +350,8 @@ public class MyBlackBox extends Activity {
 												.getSharedPref(GlobalVar.SHARED_LOGIN_ID),
 										theGlobalVar
 												.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY));
+						// Upload Data 추가
+						theUploadPool.add(theData);
 
 						theDataUploader.onResume();
 					}
@@ -380,6 +407,20 @@ public class MyBlackBox extends Activity {
 			thePath.mkdirs();
 		}
 
+	}
+
+	private void initSettingInfo() {
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_IS_INIT, "start");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_BLUE_NAME, "");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_BLUE_ADDRESS, "");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_LOGIN_ID, "");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY, "");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_WEB_NETWORK, "0");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_QUAILTY,
+				CamcorderProfile.QUALITY_HIGH + "");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_STORAGE_SIZE, "1");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME, "1");
+		theGlobalVar.setSharedPref(GlobalVar.SHARED_CRASH_CRITERIA, "3");
 	}
 
 	private class DataFileCopy extends Thread {

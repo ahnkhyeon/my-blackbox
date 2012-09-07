@@ -19,9 +19,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10" >
+
             <requestFocus />
         </EditText>
-
     </TableRow>
 
     <TableRow
@@ -39,8 +39,9 @@
             android:id="@+id/loginPW"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10" />
-
+            android:ems="10"
+            android:imeOptions="actionSearch"
+            android:password="true" />
     </TableRow>
 
     <TableRow
@@ -53,11 +54,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="취소" />
+
         <Button
             android:id="@+id/loginBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="로그인" />
-
     </TableRow>
+
 </TableLayout>
