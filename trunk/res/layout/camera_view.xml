@@ -47,10 +47,12 @@
             android:layout_height="fill_parent"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:apiKey="0X2J72_AUUX6QxjG6k2jUlsxGV0nEcm_qe_BdbQ"
+            android:apiKey="0X2J72_AUUX4TS0akTfCt6Snf9XJMs9OzvcR7ew"
             android:clickable="true" />
-
-        <!-- android:apiKey="0KK_cMpXHGI38nXyPCli7NJZ-IpmzRWAgy-VmmA" -->
+<!-- 0X2J72_AUUX4TS0akTfCt6Snf9XJMs9OzvcR7ew : apk용 -->
+<!-- 0X2J72_AUUX6QxjG6k2jUlsxGV0nEcm_qe_BdbQ : 기성 debugv-->
+<!-- 0KK_cMpXHGI38nXyPCli7NJZ-IpmzRWAgy-VmmA : 태현 debug -->
+       
 
     </RelativeLayout>
 

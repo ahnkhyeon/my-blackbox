@@ -26,10 +26,13 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:apiKey="0X2J72_AUUX6QxjG6k2jUlsxGV0nEcm_qe_BdbQ"
+        android:apiKey="0X2J72_AUUX4TS0akTfCt6Snf9XJMs9OzvcR7ew"
         android:clickable="true"
         android:visibility="visible" />
-
+<!-- 0X2J72_AUUX4TS0akTfCt6Snf9XJMs9OzvcR7ew : apk용 -->
+<!-- 0X2J72_AUUX6QxjG6k2jUlsxGV0nEcm_qe_BdbQ : 기성 debugv-->
+<!-- 0KK_cMpXHGI38nXyPCli7NJZ-IpmzRWAgy-VmmA : 태현 debug -->
+    
     <ListView
         android:id="@+id/list"
         android:layout_width="200dp"
