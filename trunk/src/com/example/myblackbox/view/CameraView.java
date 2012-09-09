@@ -73,7 +73,6 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private static int fileIndex = 0;
 	private static String filename = "";
 	private ArrayList<File> Flist;
-	MediaPlayer player;
 	MediaRecorder recorder;
 	boolean isStorage = true;
 	boolean isMap = true;
@@ -83,7 +82,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	public int MapTime = 7000;
 	SurfaceHolder holder;
 	StorageThread ST = new StorageThread();
-	MapThread MT = new MapThread();
+	// MapThread MT = new MapThread();
 
 	private MapView mapView; // 맵뷰 객체
 	private List<Overlay> listOfOverlays; // 맵에 표시된 오버레이(레이어)들을 가지고 있는 리스트
@@ -101,6 +100,11 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	private Button mapHiddenBtn;
 
 	private boolean Mapon = true;
+	
+	
+	
+	private Timer PlayerTimer;// = new Timer();
+
 	// ////////////////////////////////////////////////////////////////////////
 
 	private int CameraQuailty;
@@ -158,7 +162,9 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 				SensorManager.SENSOR_DELAY_UI);
 
 		// shake 센서 감도
-		mSensorListener.setMinForce(ShakeEventListener.MIN_FORCEs[Integer.parseInt(theGlobalVar.getSharedPref(GlobalVar.SHARED_CRASH_CRITERIA))]);
+		mSensorListener.setMinForce(ShakeEventListener.MIN_FORCEs[Integer
+				.parseInt(theGlobalVar
+						.getSharedPref(GlobalVar.SHARED_CRASH_CRITERIA))]);
 		mSensorListener
 				.setOnShakeListener(new ShakeEventListener.OnShakeListener() {
 
@@ -206,8 +212,8 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		locL = new MyLocationListener();
 		// 위치 매니저에 위치 리스너를 셋팅한다.
 		// 위치 리스너에서 10000ms (10초) 마다 100미터 이상 이동이 발견되면 업데이트를 하려한다.
-//		locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
-		locM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, locL);
+		// locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
+		locM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 50, locL);
 
 		// 처음에 한번 맵뷰에 그려준다.
 		updateOverlay(currentLocation);
@@ -245,8 +251,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		recordStopBtn = (Button) findViewById(R.id.recordStopBtn);
 		mapHiddenBtn = (Button) findViewById(R.id.mapHiddenBtn);
 
-		final Timer PlayerTimer = new Timer();
-		final Timer MapTimer = new Timer();
+//		final Timer PlayerTimer;// = new Timer();
 		final TimerTask Playertask = new TimerTask() {
 			public void run() {
 				try {
@@ -273,21 +278,41 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			}
 
 		};
-		final TimerTask MapTask = new TimerTask() {
-			public void run() {
-				currentLocation = locM.getLastKnownLocation(bestProvider);
-				updateOverlay(currentLocation);
-			}
-		};
+		
 
-		// MapTimer.schedule(MapTask, 0,10000);
 		// 녹화 버튼 리스너
 		recordBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 
 				filename = createFilename();
 				startRecording(filename);
-				PlayerTimer.schedule(Playertask, RecordTime, RecordTime);
+				PlayerTimer = new Timer();
+				PlayerTimer.schedule(new TimerTask() {
+					public void run() {
+						try {
+
+							if (recorder == null)
+								return;
+
+							// 녹화 중지 후에 리소스 해제
+							recorder.stop();
+							recorder.reset();
+							chkUploadData();
+
+							recorder.release();
+							mCamera.lock();
+							recorder = null;
+
+							filename = createFilename();
+							startRecording(filename);
+							Toast.makeText(CameraView.this, locL.toString(),
+									Toast.LENGTH_SHORT).show();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+
+				}, RecordTime, RecordTime);
 
 				recordBtn.setEnabled(false);
 				recordStopBtn.setEnabled(true);
@@ -302,11 +327,12 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		recordStopBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				PlayerTimer.cancel();
+				PlayerTimer = null;
 				stopRecording();
-				currentLocation = locM.getLastKnownLocation(bestProvider);
-				updateOverlay(currentLocation);
+
+				// updateOverlay(currentLocation);
 				ST.interrupt();
-				MT.interrupt();
+				// MT.interrupt();
 				recordBtn.setEnabled(true);
 				recordStopBtn.setEnabled(false);
 
@@ -347,6 +373,10 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		});
 
 		CameraPreview();
+
+	}
+
+	private void StopButtonAction() {
 
 	}
 
@@ -517,7 +547,47 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 	}
 
+	/** Android Life Cycle */
+	@Override
+	public void onStart() {
+		Log.e("lifecycle", "onStart()");
+		super.onStart();
+		// //Log.e(GlobalVar.TAG,"onStart()");
+	}
+
+	@Override
+	public void onRestart() {
+		Log.e("lifecycle", "onRestart");
+		super.onRestart();
+		// //Log.e(GlobalVar.TAG,"onRestart()");
+
+	}
+
+	@Override
+	public void onResume() {
+		Log.e("lifecycle", "onResume()");
+
+
+
+		super.onResume();
+		// //Log.e(GlobalVar.TAG,"onResume()");
+
+	}
+
+	@Override
+	public void onStop() {
+		Log.e("lifecycle", "onStop()");
+		super.onStop();
+		// //Log.e(GlobalVar.TAG,"onStop()");
+	}
+
 	protected void onPause() {
+		Log.e("lifecycle", "onPause()");
+		
+		if (recordBtn.isEnabled() == false) {
+			recordStopBtn.performClick();
+		}
+		
 		if (mCamera != null) {
 			mCamera.release();
 			mCamera = null;
@@ -528,16 +598,11 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 			recorder = null;
 		}
 
-		if (player != null) {
-			player.release();
-			player = null;
-		}
-
 		super.onPause();
-		// Log.e("lifecycle", "onPause()");
 	}
 
 	protected void onDestroy() {
+		Log.e("lifecycle", "onDestroy()");
 		super.onDestroy();
 		if (recorder != null) {
 			recorder.release();
@@ -664,7 +729,12 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 
 	public void surfaceCreated(SurfaceHolder holder) {
 		// Auto-generated method stub
+		Log.d(TAG, "Enter surfaceCreated  ---------------------------");
 		try {
+			if (mCamera == null) {
+				mCamera = Camera.open();
+			}
+
 			mCamera.setPreviewDisplay(holder);
 		} catch (IOException exception) {
 			mCamera.release();
@@ -675,6 +745,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		Log.d(TAG, "Enter surfaceDestroyed  ---------------------------");
 		// Auto-generated method stub
 		// mCamera.stopPreview();
 		// mCamera.release();
@@ -800,8 +871,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 					// 위치 리스너에서 10000ms (10초) 마다 100미터 이상 이동이 발견되면 업데이트를 하려한다.
 					// locM.requestLocationUpdates(bestProvider, 5000, 0, locL);
 					// 처음에 한번 맵뷰에 그려준다.
-					
-					
+
 					updateOverlay(currentLocation);
 					SimpleDateFormat theFormat = new SimpleDateFormat(
 							"yyyy-MM-dd HH:mm:ss", Locale.KOREA);
@@ -890,7 +960,7 @@ public class CameraView extends MapActivity implements SurfaceHolder.Callback {
 		Drawable marker;
 
 		// 실제 운영소스엔 분기하여 현재위치와 선택위치 이미지를 변경하게 되어있다.
-		marker = getResources().getDrawable(R.drawable.ic_launcher);
+		marker = getResources().getDrawable(R.drawable.mark);
 		marker.setBounds(0, 0, marker.getIntrinsicWidth(),
 				marker.getIntrinsicHeight());
 
