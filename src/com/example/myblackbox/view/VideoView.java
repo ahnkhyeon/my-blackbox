@@ -274,10 +274,10 @@ public class VideoView extends MapActivity implements OnClickListener, Runnable,
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				//GeoList.clear();
-				StringTokenizer ST = new StringTokenizer(video.get(position),
+				StringTokenizer ST = new StringTokenizer(Event.get(position),
 						".");
 
-				filename = GlobalVar.EVENT_PATH + "/" + video.get(position);
+				filename = GlobalVar.EVENT_PATH + "/" + Event.get(position);
 				//Log.e("name", ST.nextToken());
 				// Parsing(XmlPath+"data.xml");
 				Parsing(GlobalVar.EVENT_DATA_PATH + "/" + ST.nextToken()
@@ -622,6 +622,7 @@ public class VideoView extends MapActivity implements OnClickListener, Runnable,
 
 	protected void onPause() {
 		Log.e("pause","home.......");
+		
 	
 		releaseMediaPlayer();
 		super.onPause();
