@@ -192,60 +192,9 @@ public class SettingView extends PreferenceActivity {
 
 			if (preference.getKey().equals("setting_app_info")) {
 				/** 앱 정보 */
-				GlobalVar.popupToast(SettingView.this, "setting_app_info");
-
+				startActivity(new Intent(SettingView.this, SettingAppInfo.class));
 				
 				
-			
-				
-				
-				
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_BLUE_NAME
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_BLUE_NAME));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_BLUE_ADDRESS
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_BLUE_ADDRESS));
-				Log.e(GlobalVar.TAG, GlobalVar.SHARED_LOGIN_ID + "/"
-						+ theGlobalVar.getSharedPref(GlobalVar.SHARED_LOGIN_ID));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_LOGIN_IDENTITY
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_LOGIN_IDENTITY));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_WEB_NETWORK
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_WEB_NETWORK));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_CAMERA_QUAILTY
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_CAMERA_QUAILTY));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_CAMERA_STORAGE_SIZE
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_CAMERA_STORAGE_SIZE));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_CAMERA_RECORD_TIME
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_CAMERA_RECORD_TIME));
-				Log.e(GlobalVar.TAG,
-						GlobalVar.SHARED_CRASH_CRITERIA
-								+ "/"
-								+ theGlobalVar
-										.getSharedPref(GlobalVar.SHARED_CRASH_CRITERIA));
-				
-				
-
-				// Log.e(GlobalVar.TAG, "app info");
 			} else if (preference.getKey().equals("settting_camera_resolution")) {
 				/** 카메라 해상도 */
 				// Log.e(GlobalVar.TAG, "Camera Resolution");
